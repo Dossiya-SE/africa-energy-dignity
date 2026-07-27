@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "africa-energy-dignity"
+version = "0.1.0"
+description = "Open energy sovereignty modeling and rapid deployment engineering for Sub-Saharan Africa"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [
+  {name = "Dossiya Dakou"}
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: Africa Energy Dignity
+message: "Please cite the specific software release and documentation version used."
+type: software
+authors:
+  - family-names: Dakou
+    given-names: Dossiya
+repository-code: "https://github.com/Dossiya-SE/africa-energy-dignity"
+license: Apache-2.0
+version: 0.1.0

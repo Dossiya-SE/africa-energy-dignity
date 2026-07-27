@@ -1,0 +1,12 @@
+project:
+  name: Africa Energy Dignity
+  acronym: AED
+  stage: foundation
+  geographic_scope: Sub-Saharan Africa
+
+principles:
+  urgency_is_design_constraint: true
+  evidence_before_decision: true
+  reproducibility_required: true
+  local_capability_required: true
+  data_sovereignty_required: true
