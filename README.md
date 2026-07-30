@@ -4,7 +4,7 @@
 
 > From electricity access to productive capability, infrastructure resilience and sovereign development.
 
-[![Project stage](https://img.shields.io/badge/stage-foundation-orange)](#current-stage)
+[![Project stage](https://img.shields.io/badge/stage-pre--alpha-orange)](#development-status)
 [![Development model](https://img.shields.io/badge/model-open%20science%20%2B%20open%20engineering-blue)](#operating-principles)
 [![Geographic scope](https://img.shields.io/badge/scope-Sub--Saharan%20Africa-green)](#mission)
 
@@ -65,20 +65,17 @@ The objective is to minimize `T_impact` while satisfying reliability, affordabil
 
 ## Current stage
 
-The project is in the **foundation and systems-design phase**.
+The project is in the **pre-alpha executable-foundation phase**.
 
-The first 90-day mission is to produce:
+The immediate mission is to establish:
 
-- A complete project charter
-- A systematic evidence map
-- A documented energy-dignity indicator framework
-- A validated country-data schema
-- A working baseline data pipeline
-- A mathematical model specification
-- A dashboard prototype
-- A selected demonstration case
-- A deployment constraint register
-- A reproducible technical roadmap
+- a governed source and institution registry;
+- canonical geography and asset records;
+- reproducible database migrations;
+- a tested API;
+- append-only audit events;
+- controlled Burkina Faso fixtures; and
+- a traceable transition from verified evidence to later modeling.
 
 ## Project leadership
 
@@ -103,12 +100,13 @@ The founder leads:
 ```text
 .
 ├── .github/                 Issue forms, pull-request template and quality workflow
+├── alembic/                 Versioned database migrations
 ├── config/                  Version-controlled model and application configuration
-├── data/                    Data zones with provenance and licensing controls
+├── data/                    Data zones, controlled fixtures and provenance controls
 ├── docs/                    Scientific, engineering and governance documentation
 ├── notebooks/               Exploratory analyses only
 ├── scripts/                 Reproducible command-line workflows
-├── src/aed/                 Tested source code
+├── src/aed/                 Tested source code and registry API
 └── tests/                   Verification and regression tests
 ```
 
@@ -144,9 +142,11 @@ Africa Energy Dignity is pre-alpha.
 
 The system architecture baseline `0.1`, canonical data contract and seven canonical JSON Schemas are approved and validated.
 
-The next scientific phase is the Burkina Faso Energy Access Explorer benchmark, followed by source verification and conventional reference modeling.
+GEO-001 is complete.
 
-Production data ingestion, energyRt implementation, native Pyomo implementation, optimization results and dashboard development have not yet begun.
+DATA-001, the executable Burkina Faso evidence and project registry, is the current implementation phase.
+
+Production data ingestion, energyRt implementation, native Pyomo implementation, optimization results, financial-engineering modules and dashboard development have not yet begun.
 
 ## Development transparency
 
