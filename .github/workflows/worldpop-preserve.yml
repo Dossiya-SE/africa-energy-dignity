@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/worldpop-preserve.yml"
       - "scripts/worldpop_pipeline.py"
+      - "scripts/worldpop_release_notes.py"
       - "data/canonical/boundaries/bfa-natural-earth-5.1.1.geojson"
   workflow_dispatch:
 
@@ -82,29 +83,7 @@ jobs:
               --actual "$MANIFEST"
             cp ".evidence/existing/$MANIFEST_NAME" "data/manifests/$MANIFEST_NAME"
           else
-            python - <<'PY'
-          import json
-          from pathlib import Path
-
-          manifest = json.loads(Path(".evidence/bfa_ppp_2020_1km_Aggregated.manifest.json").read_text())
-          notes = f"""# GEO-002 WorldPop evidence archive
-
-          Official file: `{manifest['official_filename']}`
-
-          Source: {manifest['source_locator']}
-
-          Licence: {manifest['licence']['name']}
-
-          Raw SHA-256: `{manifest['original']['sha256']}`
-
-          Canonical COG SHA-256: `{manifest['canonical']['sha256']}`
-
-          Population total computed from valid cells: `{manifest['validation']['computed_population_total']}` persons
-
-          This prerelease is a controlled evidence archive outside normal Git history. Assets must not be replaced in place; changed upstream bytes require a new evidence version and release tag.
-          """
-          Path(".evidence/release-notes.md").write_text(notes, encoding="utf-8")
-          PY
+            python scripts/worldpop_release_notes.py
             gh release create "$RELEASE_TAG" \
               "$RAW" "$COG" "$PREVIEW" "$MANIFEST" \
               --repo "$GITHUB_REPOSITORY" \
