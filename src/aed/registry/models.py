@@ -1,13 +1,36 @@
 """Pydantic request and response models for registry entities."""
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
 
-ValidationStatus = Literal["proposed", "reviewed", "validated", "rejected"]
-EvidenceClass = Literal[
-    "observed", "published", "derived", "assumed", "synthetic", "unverified"
+ValidationStatus = Literal[
+    "proposed",
+    "schema_valid",
+    "source_verified",
+    "cross_checked",
+    "model_ready",
+    "validated",
+    "rejected",
+    "deprecated",
 ]
+EvidenceClass = Literal[
+    "observed",
+    "published",
+    "derived",
+    "assumed",
+    "scenario",
+    "expert_judgment",
+    "unverified",
+]
+
+STABLE_ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+VERIFIED_STATES = {
+    "source_verified",
+    "cross_checked",
+    "model_ready",
+    "validated",
+}
 
 
 class ORMModel(BaseModel):
@@ -16,8 +39,27 @@ class ORMModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TemporalCoverage(BaseModel):
+    """Explicit source-validity period compatible with the AED source schema."""
+
+    valid_from: date | None = None
+    valid_to: date | None = None
+    description: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def validate_temporal_interval(self):
+        """Require a declared interval or a meaningful description."""
+        if not any((self.valid_from, self.valid_to, self.description)):
+            raise ValueError(
+                "Temporal coverage requires valid_from, valid_to, or description."
+            )
+        if self.valid_from and self.valid_to and self.valid_to < self.valid_from:
+            raise ValueError("valid_to must not precede valid_from.")
+        return self
+
+
 class InstitutionCreate(BaseModel):
-    id: str = Field(min_length=2, max_length=64, pattern=r"^[A-Za-z0-9._-]+$")
+    id: str = Field(min_length=2, max_length=64, pattern=STABLE_ID_PATTERN)
     name: str = Field(min_length=2, max_length=255)
     institution_type: str = Field(min_length=2, max_length=64)
     country_code: str | None = Field(default=None, min_length=2, max_length=3)
@@ -32,7 +74,7 @@ class InstitutionRead(InstitutionCreate, ORMModel):
 
 
 class GeographyCreate(BaseModel):
-    id: str = Field(min_length=2, max_length=64, pattern=r"^[A-Za-z0-9._-]+$")
+    id: str = Field(min_length=2, max_length=64, pattern=STABLE_ID_PATTERN)
     name: str = Field(min_length=2, max_length=255)
     level: str = Field(min_length=2, max_length=64)
     parent_id: str | None = None
@@ -46,45 +88,63 @@ class GeographyRead(GeographyCreate, ORMModel):
 
 
 class SourceCreate(BaseModel):
-    id: str = Field(min_length=2, max_length=64, pattern=r"^[A-Za-z0-9._-]+$")
+    """Canonical source metadata accepted by the registry API."""
+
+    id: str = Field(min_length=2, max_length=64, pattern=STABLE_ID_PATTERN)
     title: str = Field(min_length=3, max_length=500)
+    original_publisher: str = Field(min_length=2, max_length=500)
     publisher_id: str | None = None
-    source_url: HttpUrl
-    access_date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
-    temporal_coverage: str | None = None
-    geographic_coverage: str | None = None
-    licence: str | None = None
-    attribution: str | None = None
-    limitations: str | None = None
+    source_url: HttpUrl | None = None
+    persistent_identifier: str | None = Field(default=None, min_length=1)
+    archive_reference: str | None = Field(default=None, min_length=1)
+    access_date: date
+    temporal_coverage: TemporalCoverage
+    geographic_coverage: list[str] = Field(min_length=1)
+    licence: str = Field(min_length=1, max_length=255)
+    attribution_requirements: str = Field(min_length=1)
+    access_method: str = Field(min_length=1, max_length=255)
+    known_limitations: list[str] = Field(min_length=1)
     evidence_class: EvidenceClass = "published"
-    validation_status: ValidationStatus = "proposed"
-    checksum: str | None = None
+    verification_status: ValidationStatus = "proposed"
+    responsible_reviewer: str = Field(min_length=1, max_length=255)
+    version: str = Field(min_length=1, max_length=128)
+    checksum: str | None = Field(default=None, max_length=128)
 
     @model_validator(mode="after")
-    def enforce_validated_metadata(self):
-        """Block validation when licence, time or limitations are absent."""
-        if self.validation_status == "validated":
-            required = {
-                "licence": self.licence,
-                "temporal_coverage": self.temporal_coverage,
-                "limitations": self.limitations,
-            }
-            missing = [name for name, value in required.items() if not value]
-            if missing:
+    def enforce_source_integrity(self):
+        """Require a locator and block unsupported verification upgrades."""
+        if not any(
+            (self.source_url, self.persistent_identifier, self.archive_reference)
+        ):
+            raise ValueError(
+                "A source requires source_url, persistent_identifier, "
+                "or archive_reference."
+            )
+
+        if self.verification_status in VERIFIED_STATES:
+            if self.licence.strip().lower() in {
+                "unknown",
+                "licence_unknown",
+                "license_unknown",
+            }:
                 raise ValueError(
-                    "Validated sources require: " + ", ".join(sorted(missing))
+                    "A source cannot be source_verified while its licence is unknown."
+                )
+            if self.evidence_class == "unverified":
+                raise ValueError(
+                    "Unverified evidence cannot receive a verified validation state."
                 )
         return self
 
 
 class SourceRead(SourceCreate, ORMModel):
-    source_url: str
+    source_url: str | None = None
     created_at: datetime
     updated_at: datetime
 
 
 class AssetCreate(BaseModel):
-    id: str = Field(min_length=2, max_length=64, pattern=r"^[A-Za-z0-9._-]+$")
+    id: str = Field(min_length=2, max_length=64, pattern=STABLE_ID_PATTERN)
     dataset_id: str | None = None
     geography_id: str | None = None
     name: str = Field(min_length=2, max_length=500)
@@ -103,7 +163,7 @@ class AssetRead(AssetCreate, ORMModel):
 
 
 class ProjectCreate(BaseModel):
-    id: str = Field(min_length=2, max_length=64, pattern=r"^[A-Za-z0-9._-]+$")
+    id: str = Field(min_length=2, max_length=64, pattern=STABLE_ID_PATTERN)
     name: str = Field(min_length=2, max_length=500)
     geography_id: str | None = None
     project_status: str = "synthetic"
