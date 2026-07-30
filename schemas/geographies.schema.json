@@ -1,0 +1,389 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.africa-energy-dignity.org/0.1/geographies.schema.json",
+  "title": "AED Canonical Geography Record",
+  "description": "Platform-independent geographic hierarchy metadata without embedded geometry.",
+  "type": "object",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_class": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "published",
+        "derived",
+        "assumed",
+        "scenario",
+        "expert_judgment",
+        "unverified"
+      ]
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "schema_valid",
+        "source_verified",
+        "cross_checked",
+        "model_ready",
+        "validated",
+        "rejected",
+        "deprecated"
+      ]
+    },
+    "missing_status": {
+      "type": "string",
+      "enum": [
+        "not_missing",
+        "not_collected",
+        "unavailable",
+        "suppressed",
+        "not_applicable",
+        "imputed",
+        "below_detection_limit"
+      ]
+    },
+    "value": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object"
+        },
+        {
+          "type": "array"
+        }
+      ]
+    },
+    "uncertainty_value": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "object"
+        },
+        {
+          "type": "array"
+        }
+      ]
+    }
+  },
+  "required": [
+    "record_id",
+    "entity_type",
+    "entity_id",
+    "name",
+    "variable",
+    "definition",
+    "evidence_class",
+    "missing_status",
+    "validation_status",
+    "responsible_contributor",
+    "version",
+    "created_at",
+    "updated_at",
+    "geography_id",
+    "geography_type",
+    "geometry_type",
+    "coordinate_reference_system",
+    "geometry_source",
+    "boundary_validity_date",
+    "spatial_resolution",
+    "boundary_status"
+  ],
+  "properties": {
+    "record_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "entity_type": {
+      "const": "geography"
+    },
+    "entity_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "name": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "variable": {
+      "$ref": "#/$defs/identifier"
+    },
+    "definition": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "value": {
+      "$ref": "#/$defs/value"
+    },
+    "unit": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "geography_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "spatial_resolution": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "valid_to": {
+      "type": "string",
+      "format": "date"
+    },
+    "temporal_resolution": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "evidence_class": {
+      "$ref": "#/$defs/evidence_class"
+    },
+    "source_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "processing_method": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "uncertainty_type": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "uncertainty_value": {
+      "$ref": "#/$defs/uncertainty_value"
+    },
+    "missing_status": {
+      "$ref": "#/$defs/missing_status"
+    },
+    "scenario_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "validation_status": {
+      "$ref": "#/$defs/validation_status"
+    },
+    "responsible_contributor": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "version": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "geography_type": {
+      "type": "string",
+      "enum": [
+        "continent",
+        "african_region",
+        "regional_power_pool",
+        "country",
+        "admin_level_1",
+        "admin_lower",
+        "settlement_cluster",
+        "facility_site",
+        "network_node",
+        "network_corridor",
+        "raster_cell"
+      ]
+    },
+    "parent_geography_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "official_code": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "geometry_type": {
+      "type": "string",
+      "enum": [
+        "point",
+        "line",
+        "polygon",
+        "multipoint",
+        "multiline",
+        "multipolygon",
+        "raster_cell"
+      ]
+    },
+    "coordinate_reference_system": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "geometry_source": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "boundary_validity_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "boundary_status": {
+      "$ref": "#/$defs/non_empty_string"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evidence_class": {
+            "enum": [
+              "observed",
+              "published"
+            ]
+          }
+        },
+        "required": [
+          "evidence_class"
+        ]
+      },
+      "then": {
+        "required": [
+          "source_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evidence_class": {
+            "const": "derived"
+          }
+        },
+        "required": [
+          "evidence_class"
+        ]
+      },
+      "then": {
+        "required": [
+          "processing_method"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "missing_status": {
+            "const": "imputed"
+          }
+        },
+        "required": [
+          "missing_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "value",
+          "processing_method",
+          "uncertainty_type",
+          "uncertainty_value"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "missing_status": {
+            "enum": [
+              "not_collected",
+              "unavailable",
+              "suppressed",
+              "not_applicable",
+              "below_detection_limit"
+            ]
+          }
+        },
+        "required": [
+          "missing_status"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "value"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "then": {
+        "required": [
+          "unit"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "geography_type": {
+            "not": {
+              "const": "continent"
+            }
+          }
+        },
+        "required": [
+          "geography_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "parent_geography_id"
+        ]
+      }
+    }
+  ],
+  "examples": [
+    {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "responsible_contributor": "Synthetic AED reviewer",
+      "version": "0.1",
+      "validation_status": "schema_valid",
+      "record_id": "geo.record.synthetic-continent",
+      "entity_type": "geography",
+      "entity_id": "geo.synthetic-continent",
+      "name": "Synthetic African geography",
+      "variable": "administrative_boundary",
+      "definition": "Synthetic geography used only to validate the schema.",
+      "evidence_class": "assumed",
+      "missing_status": "not_missing",
+      "geography_id": "geo.synthetic-continent",
+      "geography_type": "continent",
+      "geometry_type": "multipolygon",
+      "coordinate_reference_system": "EPSG:4326",
+      "geometry_source": "Synthetic schema example",
+      "boundary_validity_date": "2026-01-01",
+      "spatial_resolution": "continent",
+      "boundary_status": "synthetic"
+    }
+  ]
+}

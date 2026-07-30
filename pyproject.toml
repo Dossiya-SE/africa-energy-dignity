@@ -12,6 +12,13 @@ authors = [
   {name = "Dossiya Dakou"}
 ]
 
+[project.optional-dependencies]
+dev = [
+    "flake8>=7,<8",
+    "jsonschema>=4.23,<5",
+    "pytest>=8,<9",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
