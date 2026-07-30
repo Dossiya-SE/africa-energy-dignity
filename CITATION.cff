@@ -1,10 +1,16 @@
 cff-version: 1.2.0
 title: Africa Energy Dignity
-message: "Please cite the specific software release and documentation version used."
+message: >-
+  Please cite Africa Energy Dignity using the metadata provided in this file.
 type: software
 authors:
   - family-names: Dakou
     given-names: Dossiya
+    orcid: "https://orcid.org/0009-0004-1071-9948"
+abstract: >-
+  Africa Energy Dignity is an Africa-centered open-source scientific and
+  engineering initiative for energy-sovereignty modeling, infrastructure
+  resilience and rapid deployment engineering in Sub-Saharan Africa.
 repository-code: "https://github.com/Dossiya-SE/africa-energy-dignity"
+url: "https://github.com/Dossiya-SE/africa-energy-dignity"
 license: Apache-2.0
-version: 0.1.0
