@@ -1,8 +1,8 @@
 # Africa Energy Dignity System Architecture
 
 **Document ID:** `AED-ARCH-001`  
-**Version:** `0.1-draft`  
-**Status:** Architecture approval candidate  
+**Version:** `0.1`
+**Status:** Approved architecture baseline
 **Issue:** `ARCH-001` / Issue #3  
 **First demonstration country:** Burkina Faso
 

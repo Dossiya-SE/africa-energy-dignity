@@ -1,8 +1,8 @@
 # energyRt Benchmark for Africa Energy Dignity
 
 **Document ID:** `AED-BENCH-ERT-001`  
-**Version:** `0.1-draft`  
-**Status:** Architecture approval candidate  
+**Version:** `0.1`
+**Status:** Approved architecture baseline
 **Issue:** `ARCH-001` / Issue #3  
 **Initial application:** Burkina Faso
 

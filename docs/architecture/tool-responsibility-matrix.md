@@ -1,8 +1,8 @@
 # AED Tool Responsibility Matrix
 
 **Document ID:** `AED-ARCH-002`  
-**Version:** `0.1-draft`  
-**Status:** Architecture approval candidate  
+**Version:** `0.1`
+**Status:** Approved architecture baseline
 **Issue:** `ARCH-001` / Issue #3
 
 ## 1. Purpose
