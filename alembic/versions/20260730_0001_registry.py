@@ -22,6 +22,7 @@ def upgrade() -> None:
     """Create PostGIS support and the foundational registry tables."""
     if op.get_bind().dialect.name == "postgresql":
         op.execute("CREATE EXTENSION IF NOT EXISTS postgis")
+
     op.create_table(
         "institutions",
         sa.Column("id", sa.String(64), primary_key=True),
@@ -48,19 +49,30 @@ def upgrade() -> None:
         "sources",
         sa.Column("id", sa.String(64), primary_key=True),
         sa.Column("title", sa.String(500), nullable=False),
+        sa.Column("original_publisher", sa.String(500), nullable=False),
         sa.Column(
             "publisher_id", sa.String(64), sa.ForeignKey("institutions.id")
         ),
-        sa.Column("source_url", sa.String(1000), nullable=False),
-        sa.Column("access_date", sa.String(10), nullable=False),
-        sa.Column("temporal_coverage", sa.String(255)),
-        sa.Column("geographic_coverage", sa.String(255)),
-        sa.Column("licence", sa.String(255)),
-        sa.Column("attribution", sa.Text()),
-        sa.Column("limitations", sa.Text()),
+        sa.Column("source_url", sa.String(1000)),
+        sa.Column("persistent_identifier", sa.String(500)),
+        sa.Column("archive_reference", sa.String(500)),
+        sa.Column("access_date", sa.Date(), nullable=False),
+        sa.Column("temporal_coverage", sa.JSON(), nullable=False),
+        sa.Column("geographic_coverage", sa.JSON(), nullable=False),
+        sa.Column("licence", sa.String(255), nullable=False),
+        sa.Column("attribution_requirements", sa.Text(), nullable=False),
+        sa.Column("access_method", sa.String(255), nullable=False),
+        sa.Column("known_limitations", sa.JSON(), nullable=False),
         sa.Column("evidence_class", sa.String(32), nullable=False),
-        sa.Column("validation_status", sa.String(32), nullable=False),
+        sa.Column("verification_status", sa.String(32), nullable=False),
+        sa.Column("responsible_reviewer", sa.String(255), nullable=False),
+        sa.Column("version", sa.String(128), nullable=False),
         sa.Column("checksum", sa.String(128)),
+        sa.CheckConstraint(
+            "source_url IS NOT NULL OR persistent_identifier IS NOT NULL "
+            "OR archive_reference IS NOT NULL",
+            name="ck_sources_has_locator",
+        ),
         *timestamp_columns(),
     )
     op.create_table(
