@@ -13,6 +13,20 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: aed_test
+          POSTGRES_USER: aed
+          POSTGRES_PASSWORD: aed
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aed -d aed_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.11
@@ -37,6 +51,10 @@ jobs:
           python -c "from aed.api.main import app; print(app.title)"
       - name: Validate Docker Compose
         run: docker compose config
+      - name: Apply migrations to PostgreSQL/PostGIS
+        env:
+          AED_DATABASE_URL: postgresql+psycopg://aed:aed@localhost:5432/aed_test
+        run: alembic upgrade head
       - name: Test with pytest
         run: pytest -q
       - name: Compile Python sources
