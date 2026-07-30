@@ -21,13 +21,11 @@ export function MapShell({ layers, apiBaseUrl }: MapShellProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<import("maplibre-gl").Map | null>(null);
   const published = useMemo(() => layers.filter(layerIsSelectable), [layers]);
-  const initial =
-    published.find((layer) => layer.asset_type.startsWith("raster_population")) ??
-    published[0] ??
+  const initialSelectedId =
+    published.find((layer) => layer.asset_type.startsWith("raster_population"))?.asset_id ??
+    published[0]?.asset_id ??
     null;
-  const [selectedId, setSelectedId] = useState<string | null>(initial?.asset_id ?? null);
-  const selectedIdRef = useRef<string | null>(selectedId);
-  selectedIdRef.current = selectedId;
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId);
   const [mapError, setMapError] = useState<string | null>(null);
   const selected = layers.find((layer) => layer.asset_id === selectedId) ?? layers[0] ?? null;
 
@@ -66,8 +64,7 @@ export function MapShell({ layers, apiBaseUrl }: MapShellProps) {
                   type: "raster",
                   source: sourceId,
                   layout: {
-                    visibility:
-                      layer.asset_id === selectedIdRef.current ? "visible" : "none",
+                    visibility: layer.asset_id === initialSelectedId ? "visible" : "none",
                   },
                   paint: { "raster-opacity": 0.72 },
                 });
@@ -121,7 +118,7 @@ export function MapShell({ layers, apiBaseUrl }: MapShellProps) {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [apiBaseUrl, published]);
+  }, [apiBaseUrl, initialSelectedId, published]);
 
   useEffect(() => {
     const map = mapRef.current;
