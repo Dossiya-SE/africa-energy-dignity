@@ -53,6 +53,8 @@ class Geography(Base, TimestampMixin):
 
 
 class Source(Base, TimestampMixin):
+    """Canonical source view over the forward-compatible registry table."""
+
     __tablename__ = "sources"
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     title: Mapped[str] = mapped_column(String(500))
@@ -61,17 +63,19 @@ class Source(Base, TimestampMixin):
     source_url: Mapped[str | None] = mapped_column(String(1000))
     persistent_identifier: Mapped[str | None] = mapped_column(String(500))
     archive_reference: Mapped[str | None] = mapped_column(String(500))
-    access_date: Mapped[date] = mapped_column(Date)
-    temporal_coverage: Mapped[dict] = mapped_column(JSON)
-    geographic_coverage: Mapped[list] = mapped_column(JSON)
+    access_date: Mapped[date] = mapped_column("access_date_value", Date)
+    temporal_coverage: Mapped[dict] = mapped_column("temporal_coverage_json", JSON)
+    geographic_coverage: Mapped[list] = mapped_column(
+        "geographic_coverage_json", JSON
+    )
     licence: Mapped[str] = mapped_column(String(255))
     attribution_requirements: Mapped[str] = mapped_column(Text)
     access_method: Mapped[str] = mapped_column(String(255))
-    known_limitations: Mapped[list] = mapped_column(JSON)
+    known_limitations: Mapped[list] = mapped_column("known_limitations_json", JSON)
     evidence_class: Mapped[str] = mapped_column(String(32), default="published")
     verification_status: Mapped[str] = mapped_column(String(32), default="proposed")
     responsible_reviewer: Mapped[str] = mapped_column(String(255))
-    version: Mapped[str] = mapped_column(String(128))
+    version: Mapped[str] = mapped_column("source_version", String(128))
     checksum: Mapped[str | None] = mapped_column(String(128))
 
 
