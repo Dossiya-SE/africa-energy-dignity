@@ -143,8 +143,9 @@ def inspect_raster(path: Path, boundary_path: Path) -> dict[str, Any]:
                 north >= bnorth - y_tolerance,
             )
         )
-        if not bounds_cover_boundary:
-            raise ValueError("Raster bounds do not adequately cover Burkina Faso.")
+        # Valid-cell coverage is the acceptance gate. The rectangular bounds
+        # comparison is retained as a diagnostic because WorldPop and Natural
+        # Earth use independently generalized national outlines.
 
         transform = dataset.transform
         valid_count = int(compressed.size)
@@ -186,7 +187,18 @@ def inspect_raster(path: Path, boundary_path: Path) -> dict[str, Any]:
                 "valid_pixels_inside_boundary": valid_inside_boundary,
                 "valid_coverage_ratio": coverage_ratio,
                 "minimum_required_ratio": MIN_COVERAGE_RATIO,
-                "bounds_cover_boundary": bounds_cover_boundary,
+                "bounds_cover_generalized_boundary": bounds_cover_boundary,
+                "raster_bounds": [west, south, east, north],
+                "reference_boundary_bounds": [
+                    float(bwest),
+                    float(bsouth),
+                    float(beast),
+                    float(bnorth),
+                ],
+                "coverage_method": (
+                    "valid raster cell centres inside the reference boundary divided "
+                    "by all reference-boundary cell centres on the raster grid"
+                ),
             },
         }
 
@@ -201,7 +213,7 @@ def create_cog(source: Path, destination: Path) -> dict[str, Any]:
             "BLOCKSIZE": 512,
             "BIGTIFF": "IF_SAFER",
             "NUM_THREADS": "ALL_CPUS",
-            "PREDICTOR": "FLOATING_POINT",
+            "PREDICTOR": 3,
         }
     )
     cog_translate(
@@ -382,7 +394,8 @@ def prepare(args: argparse.Namespace) -> int:
                 "driver": "COG",
                 "compression": "DEFLATE",
                 "block_size": 512,
-                "predictor": "FLOATING_POINT",
+                "predictor": 3,
+                "predictor_definition": "TIFF floating-point predictor",
                 "overview_resampling": "average",
                 "resolution_preserved": True,
                 "crs_preserved": True,
