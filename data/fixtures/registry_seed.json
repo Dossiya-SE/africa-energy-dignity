@@ -1,0 +1,103 @@
+{
+  "geographies": [
+    {
+      "id": "GEO-BFA",
+      "name": "Burkina Faso",
+      "level": "country",
+      "parent_id": null,
+      "iso_code": "BFA",
+      "geometry_status": "not_stored"
+    }
+  ],
+  "institutions": [
+    {
+      "id": "BFA-ABER",
+      "name": "Agence Burkinabè de l'Électrification Rurale",
+      "institution_type": "national_agency",
+      "country_code": "BFA",
+      "website": "https://www.aber.bf",
+      "notes": "National rural-electrification institution; record requires periodic verification."
+    },
+    {
+      "id": "BFA-SONABEL",
+      "name": "Société Nationale d'Électricité du Burkina",
+      "institution_type": "national_utility",
+      "country_code": "BFA",
+      "website": "https://www.sonabel.bf",
+      "notes": "National electricity utility; record requires periodic verification."
+    },
+    {
+      "id": "BFA-INSD",
+      "name": "Institut National de la Statistique et de la Démographie",
+      "institution_type": "national_statistics",
+      "country_code": "BFA",
+      "website": "https://www.insd.bf",
+      "notes": "National statistical institution; record requires periodic verification."
+    },
+    {
+      "id": "REG-WAPP",
+      "name": "West African Power Pool",
+      "institution_type": "regional_power_pool",
+      "country_code": null,
+      "website": "https://www.ecowapp.org",
+      "notes": "Regional institution; record requires periodic verification."
+    }
+  ],
+  "sources": [
+    {
+      "id": "SRC-BFA-ADMIN-CANDIDATE",
+      "title": "Candidate Burkina Faso administrative-boundary source",
+      "publisher_id": null,
+      "source_url": "https://www.geoboundaries.org",
+      "access_date": "2026-07-30",
+      "temporal_coverage": null,
+      "geographic_coverage": "Burkina Faso",
+      "licence": null,
+      "attribution": null,
+      "limitations": "Candidate only; exact release, publisher, licence and boundary vintage require verification.",
+      "evidence_class": "unverified",
+      "validation_status": "proposed",
+      "checksum": null
+    },
+    {
+      "id": "SRC-BFA-POP-CANDIDATE",
+      "title": "Candidate Burkina Faso population source",
+      "publisher_id": null,
+      "source_url": "https://www.worldpop.org",
+      "access_date": "2026-07-30",
+      "temporal_coverage": null,
+      "geographic_coverage": "Burkina Faso",
+      "licence": null,
+      "attribution": null,
+      "limitations": "Candidate only; product year, model, resolution and licence require verification.",
+      "evidence_class": "unverified",
+      "validation_status": "proposed",
+      "checksum": null
+    },
+    {
+      "id": "SRC-BFA-SOLAR-CANDIDATE",
+      "title": "Candidate Burkina Faso solar-resource source",
+      "publisher_id": null,
+      "source_url": "https://globalsolaratlas.info",
+      "access_date": "2026-07-30",
+      "temporal_coverage": null,
+      "geographic_coverage": "Burkina Faso",
+      "licence": null,
+      "attribution": null,
+      "limitations": "Candidate only; dataset version, model period, resolution and licence require verification.",
+      "evidence_class": "unverified",
+      "validation_status": "proposed",
+      "checksum": null
+    }
+  ],
+  "projects": [
+    {
+      "id": "PROJECT-SYNTHETIC-001",
+      "name": "Synthetic critical-service registry fixture",
+      "geography_id": "GEO-BFA",
+      "project_status": "synthetic",
+      "description": "Testing fixture only. It is not a real project, recommendation or deployment claim.",
+      "is_synthetic": true
+    }
+  ]
+}
