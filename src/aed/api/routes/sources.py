@@ -16,6 +16,16 @@ from aed.registry.validation import validate_source_for_use
 router = APIRouter(prefix="/sources", tags=["sources"])
 
 
+def source_values(payload: SourceCreate) -> dict:
+    """Convert validated API types into database-native values."""
+    values = payload.model_dump(mode="python")
+    values["source_url"] = str(payload.source_url) if payload.source_url else None
+    values["temporal_coverage"] = payload.temporal_coverage.model_dump(
+        mode="json", exclude_none=True
+    )
+    return values
+
+
 @router.get("", response_model=list[SourceRead])
 def list_sources(db: Session = Depends(get_db)):
     """List registered sources."""
@@ -25,14 +35,18 @@ def list_sources(db: Session = Depends(get_db)):
 @router.post("", response_model=SourceRead, status_code=status.HTTP_201_CREATED)
 def create_source(payload: SourceCreate, db: Session = Depends(get_db)):
     """Create a source without silently validating or overwriting it."""
-    validate_source_for_use(payload)
-    values = payload.model_dump(mode="json")
     try:
+        validate_source_for_use(payload)
         return create_with_audit(
-            db, model=Source, entity_type="source", values=values
+            db,
+            model=Source,
+            entity_type="source",
+            values=source_values(payload),
         )
     except DuplicateIdentifierError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @router.get("/{source_id}", response_model=SourceRead)
