@@ -140,7 +140,13 @@ No estimated value may be presented as measured evidence.
 
 ## Development status
 
-This repository is pre-alpha. Architecture, definitions and validation requirements are being established before production modeling begins.
+Africa Energy Dignity is pre-alpha.
+
+The system architecture baseline `0.1`, canonical data contract and seven canonical JSON Schemas are approved and validated.
+
+The next scientific phase is the Burkina Faso Energy Access Explorer benchmark, followed by source verification and conventional reference modeling.
+
+Production data ingestion, energyRt implementation, native Pyomo implementation, optimization results and dashboard development have not yet begun.
 
 ## Development transparency
 

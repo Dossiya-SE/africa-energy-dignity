@@ -14,9 +14,7 @@ Roles:
 - System architecture
 - Software
 - Validation
-- Data curation
 - Project administration
-- Visualization
 - Writing — original draft
 - Writing — review and editing
 
