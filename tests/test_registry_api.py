@@ -1,112 +1,79 @@
-"""DATA-001 registry and API verification."""
+"""API contract tests for the executable AED registry."""
 from pathlib import Path
 
-import pytest
 from alembic import command
 from alembic.config import Config
-from fastapi.testclient import TestClient
-from pydantic import ValidationError
-from sqlalchemy import create_engine, func, select
-from sqlalchemy.orm import Session, sessionmaker
-
-from aed.api.main import app
-from aed.database.models import AuditEvent, Base, Geography, Institution
-from aed.database.session import get_db
-from aed.registry.models import SourceCreate
+from sqlalchemy import create_engine
 
 
-@pytest.fixture()
-def db_session(tmp_path: Path):
-    """Provide an isolated SQLite database using production models."""
-    engine = create_engine(
-        f"sqlite+pysqlite:///{tmp_path / 'test.db'}",
-        connect_args={"check_same_thread": False},
-    )
-    Base.metadata.create_all(engine)
-    session_factory = sessionmaker(
-        bind=engine, autoflush=False, expire_on_commit=False
-    )
-    with session_factory() as session:
-        yield session
-
-
-@pytest.fixture()
-def client(db_session: Session):
-    """Override the API database with the isolated test session."""
-
-    def override_db():
-        yield db_session
-
-    app.dependency_overrides[get_db] = override_db
-    with TestClient(app) as test_client:
-        yield test_client
-    app.dependency_overrides.clear()
-
-
-def valid_source(source_id: str = "SRC-TEST-001") -> dict:
-    """Return complete synthetic source metadata."""
+def institution_payload() -> dict:
     return {
-        "id": source_id,
-        "title": "Controlled test source",
-        "source_url": "https://example.org/source",
-        "access_date": "2026-07-30",
-        "temporal_coverage": "2025",
-        "geographic_coverage": "Burkina Faso",
-        "licence": "CC-BY-4.0",
-        "attribution": "Example Publisher",
-        "limitations": "Synthetic metadata used only for tests.",
-        "evidence_class": "synthetic",
-        "validation_status": "validated",
+        "id": "institution.aber",
+        "name": "Agence Burkinabè de l'Électrification Rurale",
+        "institution_type": "national_agency",
+        "country_code": "BFA",
+        "website": "https://www.aber.bf",
+        "notes": "Controlled test record.",
     }
 
 
-def test_source_validation_accepts_complete_metadata():
-    source = SourceCreate.model_validate(valid_source())
-    assert source.validation_status == "validated"
-
-
-def test_validated_source_requires_licence():
-    payload = valid_source()
-    payload["licence"] = None
-    with pytest.raises(ValidationError, match="licence"):
-        SourceCreate.model_validate(payload)
-
-
-def test_institution_creation_and_audit(
-    client: TestClient, db_session: Session
-):
-    response = client.post(
-        "/institutions",
-        json={
-            "id": "BFA-TEST-INSTITUTION",
-            "name": "Test Institution",
-            "institution_type": "national_agency",
-            "country_code": "BFA",
+def source_payload() -> dict:
+    return {
+        "id": "source.bfa.population.candidate",
+        "title": "Candidate Burkina Faso population source",
+        "original_publisher": "Publisher pending original-product verification",
+        "publisher_id": None,
+        "source_url": "https://www.worldpop.org",
+        "persistent_identifier": None,
+        "archive_reference": None,
+        "access_date": "2026-07-30",
+        "temporal_coverage": {
+            "description": "Population product year not yet selected."
         },
-    )
-    assert response.status_code == 201
-    assert db_session.get(Institution, "BFA-TEST-INSTITUTION") is not None
-    count = db_session.scalar(select(func.count()).select_from(AuditEvent))
-    assert count == 1
+        "geographic_coverage": ["geo.bfa"],
+        "licence": "licence_unknown",
+        "attribution_requirements": "Pending product-specific verification.",
+        "access_method": "Public website candidate.",
+        "known_limitations": [
+            "Product year, model, resolution and licence require verification."
+        ],
+        "evidence_class": "unverified",
+        "verification_status": "proposed",
+        "responsible_reviewer": "Dossiya Dakou",
+        "version": "0.1",
+        "checksum": None,
+    }
 
 
-def test_geography_creation(client: TestClient, db_session: Session):
-    response = client.post(
-        "/geographies",
-        json={
-            "id": "GEO-BFA",
-            "name": "Burkina Faso",
-            "level": "country",
-            "iso_code": "BFA",
-        },
-    )
-    assert response.status_code == 201
-    assert db_session.get(Geography, "GEO-BFA") is not None
+def test_health_and_readiness(client):
+    health = client.get("/health")
+    ready = client.get("/ready")
+
+    assert health.status_code == 200
+    assert health.json()["status"] == "ok"
+    assert ready.status_code == 200
+    assert ready.json() == {"status": "ready", "database": "reachable"}
 
 
-def test_duplicate_identifier_rejected(client: TestClient):
+def test_institution_creation_is_audited_and_duplicate_safe(client):
+    created = client.post("/institutions", json=institution_payload())
+    duplicate = client.post("/institutions", json=institution_payload())
+    audit = client.get("/audit-events")
+
+    assert created.status_code == 201
+    assert created.json()["id"] == "institution.aber"
+    assert duplicate.status_code == 409
+    assert audit.status_code == 200
+    events = audit.json()
+    assert len(events) == 1
+    assert events[0]["entity_type"] == "institution"
+    assert events[0]["entity_id"] == "institution.aber"
+    assert events[0]["action"] == "create"
+
+
+def test_geography_creation_and_duplicate_identifier_rejection(client):
     payload = {
-        "id": "GEO-BFA",
+        "id": "geo.bfa",
         "name": "Burkina Faso",
         "level": "country",
         "iso_code": "BFA",
@@ -115,35 +82,54 @@ def test_duplicate_identifier_rejected(client: TestClient):
     assert client.post("/geographies", json=payload).status_code == 409
 
 
-def test_api_health(client: TestClient):
-    response = client.get("/health")
-    assert response.status_code == 200
-    assert response.json()["status"] == "ok"
-
-
-def test_api_source_creation(client: TestClient):
-    created = client.post("/sources", json=valid_source())
-    assert created.status_code == 201
-    assert created.json()["validation_status"] == "validated"
-
-
-def test_api_source_retrieval(client: TestClient):
-    payload = valid_source()
-    assert client.post("/sources", json=payload).status_code == 201
+def test_source_creation_and_retrieval_preserve_canonical_metadata(client):
+    payload = source_payload()
+    created = client.post("/sources", json=payload)
     retrieved = client.get(f"/sources/{payload['id']}")
+
+    assert created.status_code == 201, created.text
     assert retrieved.status_code == 200
-    assert retrieved.json()["licence"] == "CC-BY-4.0"
+    body = retrieved.json()
+    assert body["original_publisher"] == payload["original_publisher"]
+    assert body["geographic_coverage"] == ["geo.bfa"]
+    assert body["temporal_coverage"]["description"].startswith("Population")
+    assert body["licence"] == "licence_unknown"
+    assert body["evidence_class"] == "unverified"
+    assert body["verification_status"] == "proposed"
 
 
-def test_audit_events_are_created(client: TestClient):
-    client.post("/sources", json=valid_source())
-    events = client.get("/audit-events")
-    assert events.status_code == 200
-    assert events.json()[0]["entity_type"] == "source"
+def test_unknown_source_returns_404(client):
+    response = client.get("/sources/source.missing")
+    assert response.status_code == 404
 
 
-def test_database_migration(tmp_path: Path):
+def test_source_requires_provenance_and_licensing_fields(client):
+    payload = source_payload()
+    del payload["licence"]
+    response = client.post("/sources", json=payload)
+    assert response.status_code == 422
+
+
+def test_unverified_source_cannot_be_upgraded_to_verified_state(client):
+    payload = source_payload()
+    payload["verification_status"] = "source_verified"
+    response = client.post("/sources", json=payload)
+    assert response.status_code == 422
+
+
+def test_temporal_interval_is_mathematically_ordered(client):
+    payload = source_payload()
+    payload["temporal_coverage"] = {
+        "valid_from": "2026-12-31",
+        "valid_to": "2026-01-01",
+    }
+    response = client.post("/sources", json=payload)
+    assert response.status_code == 422
+
+
+def test_database_migration_from_empty_database(tmp_path: Path, monkeypatch):
     database_path = tmp_path / "migration.db"
+    monkeypatch.delenv("AED_DATABASE_URL", raising=False)
     config = Config("alembic.ini")
     config.set_main_option(
         "sqlalchemy.url", f"sqlite+pysqlite:///{database_path}"
