@@ -1,0 +1,51 @@
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Local environment and secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python bytecode, caches and build metadata
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Node.js and Next.js
+node_modules/
+.next/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local geospatial downloads and processing caches
+# Preserve manifests, checksums, metadata, code and small controlled fixtures in Git.
+data/raw/
+data/downloads/
+data/cache/
+data/working/
+
+# Editor state
+.vscode/
+.idea/
+*.swp
+*.swo
