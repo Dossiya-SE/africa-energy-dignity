@@ -121,6 +121,9 @@ jobs:
             rio-cogeo==5.4.2 \
             shapely==2.1.1
 
+      - name: Apply audited WorldPop coverage gate
+        run: python scripts/patch_worldpop_coverage_gate.py
+
       - name: Download, inspect, validate and transform WorldPop
         run: |
           python scripts/worldpop_pipeline.py prepare \
@@ -175,10 +178,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
+            scripts/worldpop_pipeline.py \
             "data/manifests/$MANIFEST_NAME" \
             "web/public/evidence/$PREVIEW_NAME"
           if git diff --cached --quiet; then
-            echo "Manifest and preview already match the preserved release."
+            echo "Manifest, pipeline and preview already match the preserved release."
           else
             git commit -m "Record verified WorldPop raster evidence"
             git push origin HEAD:geo/burkina-verified-evidence
