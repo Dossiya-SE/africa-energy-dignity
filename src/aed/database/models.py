@@ -1,8 +1,17 @@
 """SQLAlchemy persistence models for the AED registry."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -47,7 +56,7 @@ class Geography(Base, TimestampMixin):
 
 
 class Source(Base, TimestampMixin):
-    """Canonical source metadata stored without silently flattening provenance."""
+    """Canonical source metadata stored without flattening provenance."""
 
     __tablename__ = "sources"
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
@@ -57,13 +66,13 @@ class Source(Base, TimestampMixin):
     source_url: Mapped[str | None] = mapped_column(String(1000))
     persistent_identifier: Mapped[str | None] = mapped_column(String(500))
     archive_reference: Mapped[str | None] = mapped_column(String(500))
-    access_date: Mapped[datetime.date] = mapped_column(Date)
-    temporal_coverage: Mapped[str] = mapped_column(Text)
-    geographic_coverage: Mapped[str] = mapped_column(Text)
+    access_date: Mapped[date] = mapped_column(Date)
+    temporal_coverage: Mapped[dict] = mapped_column(JSON)
+    geographic_coverage: Mapped[list] = mapped_column(JSON)
     licence: Mapped[str] = mapped_column(String(255))
     attribution_requirements: Mapped[str] = mapped_column(Text)
     access_method: Mapped[str] = mapped_column(String(255))
-    known_limitations: Mapped[str] = mapped_column(Text)
+    known_limitations: Mapped[list] = mapped_column(JSON)
     evidence_class: Mapped[str] = mapped_column(String(32), default="published")
     verification_status: Mapped[str] = mapped_column(String(32), default="proposed")
     responsible_reviewer: Mapped[str] = mapped_column(String(255))
