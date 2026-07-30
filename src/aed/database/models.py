@@ -1,13 +1,21 @@
 """SQLAlchemy persistence models for the AED registry."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 def utcnow() -> datetime:
-    """Return an aware UTC timestamp."""
     return datetime.now(timezone.utc)
 
 
@@ -16,8 +24,6 @@ class Base(DeclarativeBase):
 
 
 class TimestampMixin:
-    """Created and modified timestamps shared by mutable registry records."""
-
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow
     )
@@ -47,19 +53,29 @@ class Geography(Base, TimestampMixin):
 
 
 class Source(Base, TimestampMixin):
+    """Canonical source view over the forward-compatible registry table."""
+
     __tablename__ = "sources"
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     title: Mapped[str] = mapped_column(String(500))
+    original_publisher: Mapped[str] = mapped_column(String(500))
     publisher_id: Mapped[str | None] = mapped_column(ForeignKey("institutions.id"))
-    source_url: Mapped[str] = mapped_column(String(1000))
-    access_date: Mapped[str] = mapped_column(String(10))
-    temporal_coverage: Mapped[str | None] = mapped_column(String(255))
-    geographic_coverage: Mapped[str | None] = mapped_column(String(255))
-    licence: Mapped[str | None] = mapped_column(String(255))
-    attribution: Mapped[str | None] = mapped_column(Text)
-    limitations: Mapped[str | None] = mapped_column(Text)
+    source_url: Mapped[str | None] = mapped_column(String(1000))
+    persistent_identifier: Mapped[str | None] = mapped_column(String(500))
+    archive_reference: Mapped[str | None] = mapped_column(String(500))
+    access_date: Mapped[date] = mapped_column("access_date_value", Date)
+    temporal_coverage: Mapped[dict] = mapped_column("temporal_coverage_json", JSON)
+    geographic_coverage: Mapped[list] = mapped_column(
+        "geographic_coverage_json", JSON
+    )
+    licence: Mapped[str] = mapped_column(String(255))
+    attribution_requirements: Mapped[str] = mapped_column(Text)
+    access_method: Mapped[str] = mapped_column(String(255))
+    known_limitations: Mapped[list] = mapped_column("known_limitations_json", JSON)
     evidence_class: Mapped[str] = mapped_column(String(32), default="published")
-    validation_status: Mapped[str] = mapped_column(String(32), default="proposed")
+    verification_status: Mapped[str] = mapped_column(String(32), default="proposed")
+    responsible_reviewer: Mapped[str] = mapped_column(String(255))
+    version: Mapped[str] = mapped_column("source_version", String(128))
     checksum: Mapped[str | None] = mapped_column(String(128))
 
 

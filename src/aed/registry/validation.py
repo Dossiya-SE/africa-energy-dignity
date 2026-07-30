@@ -1,14 +1,18 @@
 """Domain validation that supplements Pydantic request validation."""
-from aed.registry.models import SourceCreate
+from aed.registry.models import SourceCreate, VERIFIED_STATES
 
 
 def validate_source_for_use(source: SourceCreate) -> None:
-    """Reject a source that lacks metadata required for validated use."""
-    if source.validation_status != "validated":
+    """Reject unsupported upgrades from unverified evidence to verified use."""
+    if source.verification_status not in VERIFIED_STATES:
         return
-    if not source.licence:
-        raise ValueError("A validated source requires a licence.")
-    if not source.temporal_coverage:
-        raise ValueError("A validated source requires temporal coverage.")
-    if not source.limitations:
-        raise ValueError("A validated source requires documented limitations.")
+    if source.evidence_class == "unverified":
+        raise ValueError(
+            "Unverified evidence cannot receive a verified validation state."
+        )
+    if source.licence.strip().lower() in {
+        "unknown",
+        "licence_unknown",
+        "license_unknown",
+    }:
+        raise ValueError("A verified source requires a known licence.")
