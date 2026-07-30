@@ -10,10 +10,11 @@ COPY src ./src
 COPY alembic.ini ./
 COPY alembic ./alembic
 COPY scripts ./scripts
+COPY data ./data
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "alembic upgrade head && uvicorn aed.api.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "alembic upgrade head && python scripts/seed_registry.py && python scripts/seed_geospatial.py && uvicorn aed.api.main:app --host 0.0.0.0 --port 8000"]
