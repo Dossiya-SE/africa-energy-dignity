@@ -8,7 +8,7 @@ on:
     branches: ["main"]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   backend:
@@ -67,28 +67,14 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: "22.16.0"
-      - name: Install web dependencies
-        run: npm install
-      - name: Commit dependency lock once
-        if: github.event_name == 'pull_request'
-        working-directory: .
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          if git ls-files --error-unmatch web/package-lock.json >/dev/null 2>&1; then
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add web/package-lock.json
-          git commit -m "Lock AED Studio web dependencies"
-          git push origin HEAD:"${HEAD_REF}"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install locked web dependencies
+        run: npm ci
       - name: Lint AED Studio
         run: npm run lint
       - name: Type-check AED Studio
