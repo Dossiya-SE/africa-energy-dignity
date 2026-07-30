@@ -26,6 +26,8 @@ export function MapShell({ layers, apiBaseUrl }: MapShellProps) {
     published[0] ??
     null;
   const [selectedId, setSelectedId] = useState<string | null>(initial?.asset_id ?? null);
+  const selectedIdRef = useRef<string | null>(selectedId);
+  selectedIdRef.current = selectedId;
   const [mapError, setMapError] = useState<string | null>(null);
   const selected = layers.find((layer) => layer.asset_id === selectedId) ?? layers[0] ?? null;
 
@@ -64,7 +66,8 @@ export function MapShell({ layers, apiBaseUrl }: MapShellProps) {
                   type: "raster",
                   source: sourceId,
                   layout: {
-                    visibility: layer.asset_id === selectedId ? "visible" : "none",
+                    visibility:
+                      layer.asset_id === selectedIdRef.current ? "visible" : "none",
                   },
                   paint: { "raster-opacity": 0.72 },
                 });
@@ -118,7 +121,7 @@ export function MapShell({ layers, apiBaseUrl }: MapShellProps) {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [apiBaseUrl, published, selectedId]);
+  }, [apiBaseUrl, published]);
 
   useEffect(() => {
     const map = mapRef.current;
