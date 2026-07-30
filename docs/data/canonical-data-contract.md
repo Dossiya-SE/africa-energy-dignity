@@ -1,8 +1,8 @@
 # AED Canonical Data Contract
 
 **Document ID:** `AED-DATA-001`  
-**Version:** `0.1-draft`  
-**Status:** Architecture approval candidate  
+**Version:** `0.1`
+**Status:** Approved architecture baseline
 **Issue:** `ARCH-001` / Issue #3  
 **Initial geography:** Burkina Faso
 
@@ -463,6 +463,14 @@ Owners for Burkina Faso datasets are unresolved and must be assigned in `DATA-00
 - energyRt and Pyomo must consume equivalent canonical inputs for benchmark cases.
 - Dashboard outputs must link to canonical data releases and model-run identifiers.
 
-## 21. Follow-on schema work
+## 21. Schema implementation map
 
-Issue #3 lists JSON schemas for geography, demand, technologies, resources, infrastructure, policies and sources. Those schema files require a separately approved implementation step after this contract is reviewed. They are not created in this six-document architecture branch.
+| Schema | Entity represented | Principal fields | Main references |
+|---|---|---|---|
+| `geographies.schema.json` | Geographic hierarchy and spatial identity | `geography_id`, type, parent, resolution, CRS | Referenced by demand, resources, infrastructure and policies |
+| `demand.schema.json` | Household, productive and critical-service demand | category, service, value, unit, geography and time | Geography and source records |
+| `technologies.schema.json` | Existing and candidate energy technologies | category, commodities, capacity, efficiency and lifetime | Source and scenario records |
+| `resources.schema.json` | Renewable, fuel and import resources | category, potential, profile, unit, geography and time | Geography and source records |
+| `infrastructure.schema.json` | Physical electricity-system assets | asset category, status, capacity and location reference | Geography and source records |
+| `policies.schema.json` | Targets, standards and constraints | category, jurisdiction, effective dates and target value | Geography, source and scenario records |
+| `sources.schema.json` | Evidence provenance and licensing | publisher, locator, licence, access date and verification | Referenced by all evidence-bearing records |
