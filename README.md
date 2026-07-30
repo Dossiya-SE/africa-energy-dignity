@@ -1,12 +1,139 @@
-# Data Directory
+# Africa Energy Dignity
 
-Do not place undocumented data in this repository.
+## Open Energy Sovereignty Modeling and Rapid Deployment Engineering for Sub-Saharan Africa
 
-## Zones
+> From electricity access to productive capability, infrastructure resilience and sovereign development.
 
-- `raw/`: immutable permitted source copies
-- `external/`: external reference files
-- `interim/`: intermediate transformations
-- `processed/`: validated analysis-ready outputs
+[![Project stage](https://img.shields.io/badge/stage-foundation-orange)](#current-stage)
+[![Development model](https://img.shields.io/badge/model-open%20science%20%2B%20open%20engineering-blue)](#operating-principles)
+[![Geographic scope](https://img.shields.io/badge/scope-Sub--Saharan%20Africa-green)](#mission)
 
-Large or restricted files should be stored through an approved data-storage system and referenced through the data register.
+## Mission
+
+**Africa Energy Dignity (AED)** is an open-source scientific, engineering and decision-support initiative for accelerating reliable, affordable, productive, resilient and locally governable energy systems across Sub-Saharan Africa.
+
+AED is built around one proposition:
+
+> Electricity access is not the final objective. The objective is the expansion of human capability, productive activity, critical-service continuity, industrial capacity, infrastructure resilience and energy sovereignty.
+
+## Operating principles
+
+1. Dignity is the objective.
+2. Urgency is a formal design constraint.
+3. Evidence precedes major decisions.
+4. Speed must not compromise safety, reliability or maintainability.
+5. Models must be transparent, reproducible and uncertainty-aware.
+6. Productive demand must be planned before infrastructure is sized.
+7. African realities must determine system assumptions.
+8. Local capability must increase with every deployment.
+9. Data sovereignty is part of energy sovereignty.
+10. Every validated solution should become reusable institutional knowledge.
+
+## Core delivery chain
+
+`Evidence → Decision → Engineering → Finance → Procurement → Construction → Commissioning → Productive Impact`
+
+The principal rapidity indicator is:
+
+`T_impact = T_diagnosis + T_design + T_approval + T_finance + T_procurement + T_construction + T_commissioning`
+
+The objective is to minimize `T_impact` while satisfying reliability, affordability, safety, environmental, local-capability and critical-service constraints.
+
+## System architecture
+
+| Layer | Purpose |
+|---|---|
+| Baseline diagnosis | Establish verified demographic, infrastructure, demand, cost and hazard conditions |
+| Demand and capability modeling | Estimate observed, unserved, suppressed, productive and future demand |
+| Technology modeling | Represent grid, mini-grid, stand-alone, generation, storage and efficiency options |
+| Multi-objective optimization | Compare cost, speed, reliability, resilience, productive impact and sovereignty |
+| Deployment engineering | Convert preferred scenarios into sequenced, accountable implementation packages |
+| Monitoring and learning | Verify service outcomes, detect failure and improve subsequent deployments |
+
+## Initial workstreams
+
+- Scientific foundation and systematic evidence synthesis
+- Data infrastructure and geospatial intelligence
+- Mathematical energy-system modeling
+- Productive-use and industrial-demand modeling
+- Reliability and infrastructure resilience
+- Rapid deployment and systems engineering
+- Dashboard and decision-support platform
+- Governance, local capability and energy sovereignty
+- Country and community demonstration cases
+- Verification, validation and open-source collaboration
+
+## Current stage
+
+The project is in the **foundation and systems-design phase**.
+
+The first 90-day mission is to produce:
+
+- A complete project charter
+- A systematic evidence map
+- A documented energy-dignity indicator framework
+- A validated country-data schema
+- A working baseline data pipeline
+- A mathematical model specification
+- A dashboard prototype
+- A selected demonstration case
+- A deployment constraint register
+- A reproducible technical roadmap
+
+## Repository map
+
+```text
+.
+├── .github/                 Issue forms, pull-request template and quality workflow
+├── config/                  Version-controlled model and application configuration
+├── data/                    Data zones with provenance and licensing controls
+├── docs/                    Scientific, engineering and governance documentation
+├── notebooks/               Exploratory analyses only
+├── scripts/                 Reproducible command-line workflows
+├── src/aed/                 Tested source code
+└── tests/                   Verification and regression tests
+```
+
+## Documentation
+
+Start with:
+
+- [`docs/project-charter.md`](docs/project-charter.md)
+- [`docs/scientific-foundation.md`](docs/scientific-foundation.md)
+- [`docs/literature-review-protocol.md`](docs/literature-review-protocol.md)
+- [`docs/mathematical-framework.md`](docs/mathematical-framework.md)
+- [`docs/verification-validation.md`](docs/verification-validation.md)
+- [`PROJECT_SETUP.md`](PROJECT_SETUP.md)
+
+## Scientific integrity
+
+Every major output must distinguish among:
+
+- Observed data
+- Published evidence
+- Derived values
+- Model assumptions
+- Expert judgments
+- Scenario choices
+- Uncertainty ranges
+- Political or strategic preferences
+
+No estimated value may be presented as measured evidence.
+
+## Development status
+
+This repository is pre-alpha. Architecture, definitions and validation requirements are being established before production modeling begins.
+
+## Contributing
+
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`GOVERNANCE.md`](GOVERNANCE.md) before submitting work.
+
+## License
+
+Software is released under the Apache License 2.0. Third-party datasets remain subject to their original licenses and must be registered in [`data/DATA_REGISTER.csv`](data/DATA_REGISTER.csv).
+
+---
+
+## Africa Energy Dignity
+
+**Energy access must become productive power. Productive power must become sovereign development.**
