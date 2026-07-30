@@ -37,12 +37,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Local geospatial downloads and processing caches
-# Preserve manifests, checksums, metadata, code and small controlled fixtures in Git.
+# Controlled geospatial bytes and processing caches.
+# Manifests, checksums, metadata, code and small review derivatives remain in Git.
 data/raw/
 data/downloads/
 data/cache/
 data/working/
+data/canonical/rasters/
+.evidence/
 
 # Editor state
 .vscode/
