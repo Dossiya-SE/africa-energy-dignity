@@ -44,12 +44,12 @@ def upgrade() -> None:
             )
         )
         batch.add_column(sa.Column("metadata_json", sa.JSON()))
-        batch.add_column(
-            sa.Column(
-                "processing_run_id",
-                sa.String(64),
-                sa.ForeignKey("processing_runs.id"),
-            )
+        batch.add_column(sa.Column("processing_run_id", sa.String(64)))
+        batch.create_foreign_key(
+            "fk_geospatial_assets_processing_run",
+            "processing_runs",
+            ["processing_run_id"],
+            ["id"],
         )
         batch.create_check_constraint(
             "ck_geospatial_publication_status",
@@ -59,6 +59,10 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     with op.batch_alter_table("geospatial_assets") as batch:
+        batch.drop_constraint(
+            "fk_geospatial_assets_processing_run",
+            type_="foreignkey",
+        )
         batch.drop_constraint("ck_geospatial_publication_status", type_="check")
         for column in (
             "processing_run_id",
