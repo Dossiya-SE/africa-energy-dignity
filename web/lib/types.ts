@@ -85,6 +85,34 @@ export interface AssetRecord {
   updated_at: string;
 }
 
+export interface MapLayerRecord {
+  asset_id: string;
+  name: string;
+  asset_type: string;
+  geography_id: string | null;
+  publication_status: "published" | "blocked";
+  validation_status: VerificationStatus;
+  evidence_class: EvidenceClass;
+  source_id: string;
+  source_title: string;
+  original_publisher: string;
+  source_url: string | null;
+  access_date: string;
+  licence: string;
+  attribution_requirements: string;
+  known_limitations: string[];
+  dataset_id: string;
+  dataset_version: string | null;
+  unit: string | null;
+  crs: string | null;
+  bbox: number[] | null;
+  checksum: string | null;
+  spatial_resolution: string | null;
+  temporal_coverage: string | null;
+  data_url: string | null;
+  warning: string | null;
+}
+
 export interface ServiceStatus {
   status: string;
   service?: string;
