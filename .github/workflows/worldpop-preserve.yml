@@ -1,0 +1,145 @@
+name: Preserve WorldPop evidence
+
+on:
+  push:
+    branches: ["geo/burkina-verified-evidence"]
+    paths:
+      - ".github/workflows/worldpop-preserve.yml"
+      - "scripts/worldpop_pipeline.py"
+      - "data/canonical/boundaries/bfa-natural-earth-5.1.1.geojson"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: geo-002-worldpop-preserve
+  cancel-in-progress: false
+
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_URL: https://data.worldpop.org/GIS/Population/Global_2000_2020_1km/2020/BFA/bfa_ppp_2020_1km_Aggregated.tif
+      RELEASE_TAG: geo-002-worldpop-bfa-2020-v1
+      RAW_NAME: bfa_ppp_2020_1km_Aggregated.tif
+      COG_NAME: bfa_ppp_2020_1km_Aggregated.cog.tif
+      PREVIEW_NAME: bfa_ppp_2020_1km_Aggregated.preview.png
+      MANIFEST_NAME: bfa_ppp_2020_1km_Aggregated.manifest.json
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: geo/burkina-verified-evidence
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned geospatial tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install \
+            numpy==2.2.6 \
+            Pillow==11.3.0 \
+            rasterio==1.4.3 \
+            rio-cogeo==5.4.2 \
+            shapely==2.1.1
+
+      - name: Download, inspect, validate and transform WorldPop
+        run: |
+          python scripts/worldpop_pipeline.py prepare \
+            --source-url "$SOURCE_URL" \
+            --boundary data/canonical/boundaries/bfa-natural-earth-5.1.1.geojson \
+            --work-root .evidence \
+            --release-tag "$RELEASE_TAG"
+
+      - name: Preserve immutable release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RAW=".evidence/raw/$RAW_NAME"
+          COG=".evidence/canonical/$COG_NAME"
+          PREVIEW=".evidence/preview/$PREVIEW_NAME"
+          MANIFEST=".evidence/$MANIFEST_NAME"
+          mkdir -p .evidence/existing data/manifests web/public/evidence
+
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --json assets --jq '.assets[].name' > .evidence/existing-assets.txt
+            for required in "$RAW_NAME" "$COG_NAME" "$PREVIEW_NAME" "$MANIFEST_NAME"; do
+              grep -Fx "$required" .evidence/existing-assets.txt >/dev/null || {
+                echo "Existing release is incomplete: missing $required" >&2
+                exit 1
+              }
+            done
+            gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --pattern "$MANIFEST_NAME" --dir .evidence/existing
+            python scripts/worldpop_pipeline.py compare \
+              --expected ".evidence/existing/$MANIFEST_NAME" \
+              --actual "$MANIFEST"
+            cp ".evidence/existing/$MANIFEST_NAME" "data/manifests/$MANIFEST_NAME"
+          else
+            python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path(".evidence/bfa_ppp_2020_1km_Aggregated.manifest.json").read_text())
+          notes = f"""# GEO-002 WorldPop evidence archive
+
+          Official file: `{manifest['official_filename']}`
+
+          Source: {manifest['source_locator']}
+
+          Licence: {manifest['licence']['name']}
+
+          Raw SHA-256: `{manifest['original']['sha256']}`
+
+          Canonical COG SHA-256: `{manifest['canonical']['sha256']}`
+
+          Population total computed from valid cells: `{manifest['validation']['computed_population_total']}` persons
+
+          This prerelease is a controlled evidence archive outside normal Git history. Assets must not be replaced in place; changed upstream bytes require a new evidence version and release tag.
+          """
+          Path(".evidence/release-notes.md").write_text(notes, encoding="utf-8")
+          PY
+            gh release create "$RELEASE_TAG" \
+              "$RAW" "$COG" "$PREVIEW" "$MANIFEST" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$(git rev-parse HEAD)" \
+              --title "GEO-002 WorldPop Burkina Faso 2020 evidence archive" \
+              --notes-file .evidence/release-notes.md \
+              --prerelease
+            cp "$MANIFEST" "data/manifests/$MANIFEST_NAME"
+          fi
+
+          cp "$PREVIEW" "web/public/evidence/$PREVIEW_NAME"
+
+      - name: Commit manifest and small map derivative
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            "data/manifests/$MANIFEST_NAME" \
+            "web/public/evidence/$PREVIEW_NAME"
+          if git diff --cached --quiet; then
+            echo "Manifest and preview already match the preserved release."
+          else
+            git commit -m "Record verified WorldPop raster evidence"
+            git push origin HEAD:geo/burkina-verified-evidence
+          fi
+
+      - name: Retain processing bundle for audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: geo-002-worldpop-bfa-2020
+          path: |
+            .evidence/raw/${{ env.RAW_NAME }}
+            .evidence/canonical/${{ env.COG_NAME }}
+            .evidence/preview/${{ env.PREVIEW_NAME }}
+            .evidence/${{ env.MANIFEST_NAME }}
+          retention-days: 90
+          if-no-files-found: error
