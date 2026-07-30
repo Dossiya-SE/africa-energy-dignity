@@ -1,24 +1,17 @@
-name: Preserve WorldPop evidence
+name: Verify preserved WorldPop evidence
 
 on:
-  push:
-    branches: ["geo/burkina-verified-evidence"]
-    paths:
-      - ".github/workflows/worldpop-preserve.yml"
-      - "scripts/worldpop_pipeline.py"
-      - "scripts/worldpop_release_notes.py"
-      - "data/canonical/boundaries/bfa-natural-earth-5.1.1.geojson"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: geo-002-worldpop-preserve
+  group: geo-002-worldpop-verify
   cancel-in-progress: false
 
 jobs:
-  preserve:
+  verify:
     runs-on: ubuntu-latest
     env:
       SOURCE_URL: https://data.worldpop.org/GIS/Population/Global_2000_2020_1km/2020/BFA/bfa_ppp_2020_1km_Aggregated.tif
@@ -29,9 +22,6 @@ jobs:
       MANIFEST_NAME: bfa_ppp_2020_1km_Aggregated.manifest.json
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: geo/burkina-verified-evidence
-          fetch-depth: 0
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -48,77 +38,52 @@ jobs:
             rio-cogeo==5.4.2 \
             shapely==2.1.1
 
-      - name: Download, inspect, validate and transform WorldPop
+      - name: Reproduce WorldPop evidence from the official file
         run: |
           python scripts/worldpop_pipeline.py prepare \
             --source-url "$SOURCE_URL" \
             --boundary data/canonical/boundaries/bfa-natural-earth-5.1.1.geojson \
-            --work-root .evidence \
+            --work-root .evidence/reproduced \
             --release-tag "$RELEASE_TAG"
 
-      - name: Preserve immutable release assets
+      - name: Verify immutable release assets and manifest
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          RAW=".evidence/raw/$RAW_NAME"
-          COG=".evidence/canonical/$COG_NAME"
-          PREVIEW=".evidence/preview/$PREVIEW_NAME"
-          MANIFEST=".evidence/$MANIFEST_NAME"
-          mkdir -p .evidence/existing data/manifests web/public/evidence
+          mkdir -p .evidence/release
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "$RAW_NAME" \
+            --pattern "$COG_NAME" \
+            --pattern "$PREVIEW_NAME" \
+            --pattern "$MANIFEST_NAME" \
+            --dir .evidence/release
 
-          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-              --json assets --jq '.assets[].name' > .evidence/existing-assets.txt
-            for required in "$RAW_NAME" "$COG_NAME" "$PREVIEW_NAME" "$MANIFEST_NAME"; do
-              grep -Fx "$required" .evidence/existing-assets.txt >/dev/null || {
-                echo "Existing release is incomplete: missing $required" >&2
-                exit 1
-              }
-            done
-            gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-              --pattern "$MANIFEST_NAME" --dir .evidence/existing
-            python scripts/worldpop_pipeline.py compare \
-              --expected ".evidence/existing/$MANIFEST_NAME" \
-              --actual "$MANIFEST"
-            cp ".evidence/existing/$MANIFEST_NAME" "data/manifests/$MANIFEST_NAME"
-          else
-            python scripts/worldpop_release_notes.py
-            gh release create "$RELEASE_TAG" \
-              "$RAW" "$COG" "$PREVIEW" "$MANIFEST" \
-              --repo "$GITHUB_REPOSITORY" \
-              --target "$(git rev-parse HEAD)" \
-              --title "GEO-002 WorldPop Burkina Faso 2020 evidence archive" \
-              --notes-file .evidence/release-notes.md \
-              --prerelease
-            cp "$MANIFEST" "data/manifests/$MANIFEST_NAME"
-          fi
+          for required in "$RAW_NAME" "$COG_NAME" "$PREVIEW_NAME" "$MANIFEST_NAME"; do
+            test -s ".evidence/release/$required" || {
+              echo "Preserved release is incomplete: $required" >&2
+              exit 1
+            }
+          done
 
-          cp "$PREVIEW" "web/public/evidence/$PREVIEW_NAME"
+          RELEASE_MANIFEST=".evidence/release/$MANIFEST_NAME"
+          echo "$(jq -r '.original.sha256' "$RELEASE_MANIFEST")  .evidence/release/$RAW_NAME" | sha256sum --check -
+          echo "$(jq -r '.canonical.sha256' "$RELEASE_MANIFEST")  .evidence/release/$COG_NAME" | sha256sum --check -
+          echo "$(jq -r '.preview.sha256' "$RELEASE_MANIFEST")  .evidence/release/$PREVIEW_NAME" | sha256sum --check -
 
-      - name: Commit manifest and small map derivative
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            "data/manifests/$MANIFEST_NAME" \
-            "web/public/evidence/$PREVIEW_NAME"
-          if git diff --cached --quiet; then
-            echo "Manifest and preview already match the preserved release."
-          else
-            git commit -m "Record verified WorldPop raster evidence"
-            git push origin HEAD:geo/burkina-verified-evidence
-          fi
+          python scripts/worldpop_pipeline.py compare \
+            --expected "$RELEASE_MANIFEST" \
+            --actual ".evidence/reproduced/$MANIFEST_NAME"
+          cmp "$RELEASE_MANIFEST" "data/manifests/$MANIFEST_NAME"
 
-      - name: Retain processing bundle for audit
+      - name: Retain reproduction bundle for audit
         uses: actions/upload-artifact@v4
         with:
-          name: geo-002-worldpop-bfa-2020
+          name: geo-002-worldpop-reproduction
           path: |
-            .evidence/raw/${{ env.RAW_NAME }}
-            .evidence/canonical/${{ env.COG_NAME }}
-            .evidence/preview/${{ env.PREVIEW_NAME }}
-            .evidence/${{ env.MANIFEST_NAME }}
+            .evidence/reproduced/raw/${{ env.RAW_NAME }}
+            .evidence/reproduced/canonical/${{ env.COG_NAME }}
+            .evidence/reproduced/preview/${{ env.PREVIEW_NAME }}
+            .evidence/reproduced/${{ env.MANIFEST_NAME }}
           retention-days: 90
           if-no-files-found: error
