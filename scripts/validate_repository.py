@@ -16,6 +16,14 @@ REQUIRED_FILES = [
     "docs/data-governance.md",
     "docs/verification-validation.md",
     "data/DATA_REGISTER.csv",
+    "schemas/geographies.schema.json",
+    "schemas/demand.schema.json",
+    "schemas/technologies.schema.json",
+    "schemas/resources.schema.json",
+    "schemas/infrastructure.schema.json",
+    "schemas/policies.schema.json",
+    "schemas/sources.schema.json",
+    "scripts/validate_schemas.py",
 ]
 
 
