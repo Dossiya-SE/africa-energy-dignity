@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -47,19 +47,27 @@ class Geography(Base, TimestampMixin):
 
 
 class Source(Base, TimestampMixin):
+    """Canonical source metadata stored without silently flattening provenance."""
+
     __tablename__ = "sources"
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     title: Mapped[str] = mapped_column(String(500))
+    original_publisher: Mapped[str] = mapped_column(String(500))
     publisher_id: Mapped[str | None] = mapped_column(ForeignKey("institutions.id"))
-    source_url: Mapped[str] = mapped_column(String(1000))
-    access_date: Mapped[str] = mapped_column(String(10))
-    temporal_coverage: Mapped[str | None] = mapped_column(String(255))
-    geographic_coverage: Mapped[str | None] = mapped_column(String(255))
-    licence: Mapped[str | None] = mapped_column(String(255))
-    attribution: Mapped[str | None] = mapped_column(Text)
-    limitations: Mapped[str | None] = mapped_column(Text)
+    source_url: Mapped[str | None] = mapped_column(String(1000))
+    persistent_identifier: Mapped[str | None] = mapped_column(String(500))
+    archive_reference: Mapped[str | None] = mapped_column(String(500))
+    access_date: Mapped[datetime.date] = mapped_column(Date)
+    temporal_coverage: Mapped[str] = mapped_column(Text)
+    geographic_coverage: Mapped[str] = mapped_column(Text)
+    licence: Mapped[str] = mapped_column(String(255))
+    attribution_requirements: Mapped[str] = mapped_column(Text)
+    access_method: Mapped[str] = mapped_column(String(255))
+    known_limitations: Mapped[str] = mapped_column(Text)
     evidence_class: Mapped[str] = mapped_column(String(32), default="published")
-    validation_status: Mapped[str] = mapped_column(String(32), default="proposed")
+    verification_status: Mapped[str] = mapped_column(String(32), default="proposed")
+    responsible_reviewer: Mapped[str] = mapped_column(String(255))
+    version: Mapped[str] = mapped_column(String(128))
     checksum: Mapped[str | None] = mapped_column(String(128))
 
 
