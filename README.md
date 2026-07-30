@@ -80,6 +80,24 @@ The first 90-day mission is to produce:
 - A deployment constraint register
 - A reproducible technical roadmap
 
+## Project leadership
+
+**Founder and Lead Systems Engineer:**  
+[Dossiya Dakou](https://github.com/Dossiya-SE)  
+ORCID: [0009-0004-1071-9948](https://orcid.org/0009-0004-1071-9948)
+
+Africa Energy Dignity was founded and is technically led by Dossiya Dakou as an Africa-centered open-source scientific and engineering initiative.
+
+The founder leads:
+
+- scientific direction;
+- system architecture;
+- engineering standards;
+- mathematical-model strategy;
+- verification requirements;
+- project-scope protection; and
+- release approval.
+
 ## Repository map
 
 ```text
@@ -124,9 +142,17 @@ No estimated value may be presented as measured evidence.
 
 This repository is pre-alpha. Architecture, definitions and validation requirements are being established before production modeling begins.
 
+## Development transparency
+
+Africa Energy Dignity is conceived, directed and reviewed by Dossiya Dakou. AI-assisted tools may support research organization, documentation, code generation and testing.
+
+All accepted outputs remain subject to human review, source verification, repository validation, engineering judgment and formal approval.
+
+AI systems are not authors, maintainers or accountable decision-makers.
+
 ## Contributing
 
-Read [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`GOVERNANCE.md`](GOVERNANCE.md) before submitting work.
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md), [`GOVERNANCE.md`](GOVERNANCE.md) and [`AUTHORS.md`](AUTHORS.md) before submitting work.
 
 ## License
 
