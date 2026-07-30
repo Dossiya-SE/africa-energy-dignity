@@ -1,5 +1,5 @@
 # Install, validate and test the Africa Energy Dignity repository.
-name: Python application
+name: AED application
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  backend:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -59,3 +59,29 @@ jobs:
         run: pytest -q
       - name: Compile Python sources
         run: python -m compileall -q src scripts tests alembic
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.16.0"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install locked web dependencies
+        run: npm ci
+      - name: Lint AED Studio
+        run: npm run lint
+      - name: Type-check AED Studio
+        run: npm run typecheck
+      - name: Test AED Studio
+        run: npm run test
+      - name: Build AED Studio
+        env:
+          AED_API_URL: http://127.0.0.1:8000
+        run: npm run build

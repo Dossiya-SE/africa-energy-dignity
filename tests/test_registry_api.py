@@ -1,9 +1,13 @@
 """API contract tests for the executable AED registry."""
+from datetime import date
 from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, select
+from sqlalchemy.orm import Session
+
+from aed.database.models import Source
 
 
 def institution_payload() -> dict:
@@ -131,13 +135,17 @@ def test_database_migration_from_empty_database(tmp_path: Path, monkeypatch):
     database_path = tmp_path / "migration.db"
     monkeypatch.delenv("AED_DATABASE_URL", raising=False)
     config = Config("alembic.ini")
-    config.set_main_option(
-        "sqlalchemy.url", f"sqlite+pysqlite:///{database_path}"
-    )
+    database_url = f"sqlite+pysqlite:///{database_path}"
+    config.set_main_option("sqlalchemy.url", database_url)
     command.upgrade(config, "head")
-    engine = create_engine(f"sqlite+pysqlite:///{database_path}")
-    with engine.connect() as connection:
-        table_names = set(connection.dialect.get_table_names(connection))
+
+    engine = create_engine(database_url)
+    inspector = inspect(engine)
+    table_names = set(inspector.get_table_names())
+    source_columns = {
+        column["name"]: column for column in inspector.get_columns("sources")
+    }
+
     assert {
         "institutions",
         "geographies",
@@ -149,3 +157,37 @@ def test_database_migration_from_empty_database(tmp_path: Path, monkeypatch):
         "validation_events",
         "audit_events",
     }.issubset(table_names)
+    assert source_columns["access_date"]["nullable"] is True
+    assert source_columns["validation_status"]["nullable"] is True
+
+    canonical_source = Source(
+        id="source.test.migrated-insert",
+        title="Canonical source written after migration",
+        original_publisher="Controlled test publisher",
+        publisher_id=None,
+        source_url="https://example.org/source",
+        persistent_identifier=None,
+        archive_reference=None,
+        access_date=date(2026, 7, 30),
+        temporal_coverage={"description": "Controlled test period."},
+        geographic_coverage=["geo.bfa"],
+        licence="licence_unknown",
+        attribution_requirements="Controlled test attribution.",
+        access_method="Controlled test insertion.",
+        known_limitations=["Synthetic metadata for migration testing only."],
+        evidence_class="unverified",
+        verification_status="proposed",
+        responsible_reviewer="Test runner",
+        version="0.1",
+        checksum=None,
+    )
+    with Session(engine) as session:
+        session.add(canonical_source)
+        session.commit()
+        inserted = session.scalar(
+            select(Source).where(Source.id == canonical_source.id)
+        )
+        assert inserted is not None
+        assert inserted.access_date == date(2026, 7, 30)
+
+    engine.dispose()

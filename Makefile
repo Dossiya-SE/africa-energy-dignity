@@ -1,14 +1,29 @@
-.PHONY: install test lint validate migrate seed up down
+.PHONY: install test lint validate migrate seed web-install web-lint web-typecheck web-test web-build up down
 
 install:
 	python -m pip install --upgrade pip
 	pip install -e ".[dev]"
 
+web-install:
+	cd web && npm ci
+
 test:
 	pytest -q
 
+web-test:
+	cd web && npm run test
+
 lint:
 	flake8 .
+
+web-lint:
+	cd web && npm run lint
+
+web-typecheck:
+	cd web && npm run typecheck
+
+web-build:
+	cd web && npm run build
 
 validate:
 	python scripts/validate_repository.py
