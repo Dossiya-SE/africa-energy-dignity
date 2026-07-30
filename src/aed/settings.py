@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     canonical_data_root: str = "data/canonical"
+    asset_cache_root: str = "data/cache/geospatial"
 
 
 @lru_cache
