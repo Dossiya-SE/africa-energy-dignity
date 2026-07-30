@@ -24,7 +24,7 @@ export function MapShell() {
           style: DEMO_STYLE_URL,
           center: [-1.5, 12.3],
           zoom: 4.7,
-          attributionControl: true,
+          attributionControl: { compact: true },
         });
         map.addControl(new NavigationControl({ visualizePitch: true }), "top-right");
         map.on("error", (event) => {
