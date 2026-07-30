@@ -6,7 +6,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-aed}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aed}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aed} -d ${POSTGRES_DB:-aed}"]
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-aed} -d ${POSTGRES_DB:-aed}
       interval: 5s
       timeout: 5s
       retries: 20
@@ -19,10 +21,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
-    env_file:
-      - .env
     environment:
+      AED_ENV: ${AED_ENV:-development}
       AED_DATABASE_URL: ${AED_DATABASE_URL:-postgresql+psycopg://aed:aed@db:5432/aed}
+      AED_DATABASE_ECHO: ${AED_DATABASE_ECHO:-false}
     depends_on:
       db:
         condition: service_healthy
