@@ -106,10 +106,19 @@ export interface MapLayerRecord {
   unit: string | null;
   crs: string | null;
   bbox: number[] | null;
+  nodata: { value?: number; excluded_from_statistics?: boolean } | null;
   checksum: string | null;
   spatial_resolution: string | null;
   temporal_coverage: string | null;
+  product_year: number | null;
+  model_type: string | null;
+  population_total: number | null;
+  coverage_ratio: number | null;
+  file_size_bytes: number | null;
+  manifest_url: string | null;
+  rendering_method: "geojson" | "image";
   data_url: string | null;
+  preview_url: string | null;
   warning: string | null;
 }
 
