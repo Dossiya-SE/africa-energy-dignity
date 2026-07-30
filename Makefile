@@ -5,7 +5,7 @@ install:
 	pip install -e ".[dev]"
 
 web-install:
-	cd web && npm install
+	cd web && npm ci
 
 test:
 	pytest -q
