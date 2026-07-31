@@ -54,8 +54,23 @@ export function initialFinanceWorkspaceState(
 }
 
 function summaryFromDetail(detail: FinanceScenarioDetail): FinanceScenarioSummary {
-  const { scenario: _scenario, ...summary } = detail;
-  return summary;
+  return {
+    scenario_record_id: detail.scenario_record_id,
+    scenario_id: detail.scenario_id,
+    scenario_version: detail.scenario_version,
+    name: detail.name,
+    formula_version: detail.formula_version,
+    canonicalization_version: detail.canonicalization_version,
+    input_hash: detail.input_hash,
+    geography_id: detail.geography_id,
+    project_id: detail.project_id,
+    is_synthetic: detail.is_synthetic,
+    reporting_currency: detail.reporting_currency,
+    price_year: detail.price_year,
+    monetary_basis: detail.monetary_basis,
+    validation_status: detail.validation_status,
+    recorded_at: detail.recorded_at,
+  };
 }
 
 function mergeScenario(
