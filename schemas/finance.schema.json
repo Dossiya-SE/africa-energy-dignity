@@ -52,7 +52,7 @@
       "type": "object",
       "required": ["amount", "currency", "price_year", "basis"],
       "properties": {
-        "amount": {"type": "number"},
+        "amount": {"type": "number", "minimum": 0},
         "currency": {"$ref": "#/$defs/currency"},
         "price_year": {"type": "integer", "minimum": 1900, "maximum": 2200},
         "basis": {"type": "string", "enum": ["real", "nominal"]}
@@ -81,7 +81,10 @@
           "type": "object",
           "required": ["type", "lower", "upper"],
           "properties": {
-            "type": {"type": "string", "enum": ["range", "confidence_interval", "scenario"]},
+            "type": {
+              "type": "string",
+              "enum": ["range", "confidence_interval", "scenario"]
+            },
             "lower": {"type": "number"},
             "upper": {"type": "number"}
           },
@@ -92,7 +95,9 @@
       "allOf": [
         {
           "if": {
-            "properties": {"evidence_class": {"enum": ["observed", "published"]}},
+            "properties": {
+              "evidence_class": {"enum": ["observed", "published"]}
+            },
             "required": ["evidence_class"]
           },
           "then": {"required": ["source_id"]}
@@ -148,7 +153,10 @@
       "required": ["component_id", "type", "amount", "evidence"],
       "properties": {
         "component_id": {"$ref": "#/$defs/identifier"},
-        "type": {"type": "string", "enum": ["debt", "equity", "grant", "subsidy"]},
+        "type": {
+          "type": "string",
+          "enum": ["debt", "equity", "grant", "subsidy"]
+        },
         "amount": {"$ref": "#/$defs/money"},
         "interest_rate": {"$ref": "#/$defs/rate"},
         "tenor_years": {"type": "integer", "minimum": 1},
@@ -167,7 +175,12 @@
             "required": ["type"]
           },
           "then": {
-            "required": ["interest_rate", "tenor_years", "grace_period_years", "repayment_profile"]
+            "required": [
+              "interest_rate",
+              "tenor_years",
+              "grace_period_years",
+              "repayment_profile"
+            ]
           }
         }
       ]
@@ -212,6 +225,7 @@
     "monetary_basis",
     "discount_rate",
     "discount_rate_basis",
+    "funding_requirement",
     "project_start_year",
     "project_lifetime_years",
     "cost_items",
@@ -237,6 +251,7 @@
     "discount_rate": {"$ref": "#/$defs/rate"},
     "discount_rate_basis": {"type": "string", "enum": ["real", "nominal"]},
     "inflation_rate": {"$ref": "#/$defs/rate"},
+    "funding_requirement": {"$ref": "#/$defs/money"},
     "project_start_year": {"type": "integer", "minimum": 1900, "maximum": 2200},
     "project_lifetime_years": {"type": "integer", "minimum": 1},
     "construction_years": {"type": "integer", "minimum": 0},
@@ -288,7 +303,9 @@
         "properties": {"monetary_basis": {"const": "real"}},
         "required": ["monetary_basis"]
       },
-      "then": {"properties": {"discount_rate_basis": {"const": "real"}}}
+      "then": {
+        "properties": {"discount_rate_basis": {"const": "real"}}
+      }
     }
   ],
   "examples": [
@@ -304,6 +321,12 @@
       "monetary_basis": "real",
       "discount_rate": 0.08,
       "discount_rate_basis": "real",
+      "funding_requirement": {
+        "amount": 100000000,
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
       "project_start_year": 2026,
       "project_lifetime_years": 3,
       "construction_years": 0,
@@ -322,7 +345,9 @@
             "evidence_class": "scenario",
             "validation_status": "schema_valid",
             "responsible_contributor": "Synthetic AED reviewer",
-            "limitations": ["Synthetic amount used only for deterministic verification."]
+            "limitations": [
+              "Synthetic amount used only for deterministic verification."
+            ]
           }
         },
         {
@@ -339,7 +364,9 @@
             "evidence_class": "scenario",
             "validation_status": "schema_valid",
             "responsible_contributor": "Synthetic AED reviewer",
-            "limitations": ["Synthetic amount used only for deterministic verification."]
+            "limitations": [
+              "Synthetic amount used only for deterministic verification."
+            ]
           }
         }
       ],
@@ -352,7 +379,9 @@
             "evidence_class": "scenario",
             "validation_status": "schema_valid",
             "responsible_contributor": "Synthetic AED reviewer",
-            "limitations": ["Synthetic energy output used only for deterministic verification."]
+            "limitations": [
+              "Synthetic energy output used only for deterministic verification."
+            ]
           }
         },
         {
@@ -363,7 +392,9 @@
             "evidence_class": "scenario",
             "validation_status": "schema_valid",
             "responsible_contributor": "Synthetic AED reviewer",
-            "limitations": ["Synthetic energy output used only for deterministic verification."]
+            "limitations": [
+              "Synthetic energy output used only for deterministic verification."
+            ]
           }
         },
         {
@@ -374,7 +405,9 @@
             "evidence_class": "scenario",
             "validation_status": "schema_valid",
             "responsible_contributor": "Synthetic AED reviewer",
-            "limitations": ["Synthetic energy output used only for deterministic verification."]
+            "limitations": [
+              "Synthetic energy output used only for deterministic verification."
+            ]
           }
         }
       ],
@@ -392,7 +425,9 @@
             "evidence_class": "scenario",
             "validation_status": "schema_valid",
             "responsible_contributor": "Synthetic AED reviewer",
-            "limitations": ["Synthetic financing structure used only for deterministic verification."]
+            "limitations": [
+              "Synthetic financing structure used only for deterministic verification."
+            ]
           }
         }
       ],
