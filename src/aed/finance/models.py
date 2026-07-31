@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 FORMULA_VERSION = "FIN-001.1"
 PERIOD_BASIS = "annual"
+CANONICALIZATION_VERSION = "FIN-CANONICAL-JSON-1"
 
 EvidenceClass = Literal[
     "observed",
@@ -75,6 +76,28 @@ class FinanceModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class CalculationRunIdentity(FinanceModel):
+    """Deterministic identity shared by results from one normalized scenario."""
+
+    calculation_run_id: str = Field(
+        pattern=r"^finance\.run\.sha256\.[0-9a-f]{64}$"
+    )
+    scenario_id: str = Field(pattern=ID_PATTERN)
+    scenario_version: str = Field(min_length=1)
+    formula_version: Literal["FIN-001.1"] = FORMULA_VERSION
+    input_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    canonicalization_version: Literal["FIN-CANONICAL-JSON-1"] = (
+        CANONICALIZATION_VERSION
+    )
+    software_version: str = Field(min_length=1)
+
+
+class IndicatorLineage(CalculationRunIdentity):
+    """Calculation identity plus the indicator produced from that run."""
+
+    indicator_name: str = Field(min_length=1)
+
+
 class DeterministicIndicatorResult(FinanceModel):
     """Common auditable metadata returned by deterministic indicators."""
 
@@ -83,6 +106,7 @@ class DeterministicIndicatorResult(FinanceModel):
     period_basis: Literal["annual"] = PERIOD_BASIS
     warnings: list[str] = Field(default_factory=list)
     diagnostics: dict[str, Any] = Field(default_factory=dict)
+    lineage: IndicatorLineage | None = None
 
 
 class IRRResult(DeterministicIndicatorResult):

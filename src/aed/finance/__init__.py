@@ -6,24 +6,50 @@ from aed.finance.calculations import (
     affordability_metrics,
     debt_schedule,
     discounted_energy,
+    discounted_payback,
     dscr,
+    internal_rate_of_return,
     lifecycle_cash_flows,
     lcoe,
+    loan_life_coverage_ratio,
     net_present_cost,
     npv,
+    simple_payback,
 )
-from aed.finance.models import FinanceScenario
+from aed.finance.lineage import (
+    attach_indicator_lineage,
+    build_calculation_run_identity,
+    build_indicator_lineage,
+    canonical_scenario_bytes,
+    scenario_input_hash,
+)
+from aed.finance.models import (
+    CalculationRunIdentity,
+    FinanceScenario,
+    IndicatorLineage,
+)
 
 __all__ = [
     "CalculationError",
+    "CalculationRunIdentity",
     "DebtScheduleYear",
     "FinanceScenario",
+    "IndicatorLineage",
     "affordability_metrics",
+    "attach_indicator_lineage",
+    "build_calculation_run_identity",
+    "build_indicator_lineage",
+    "canonical_scenario_bytes",
     "debt_schedule",
     "discounted_energy",
+    "discounted_payback",
     "dscr",
+    "internal_rate_of_return",
     "lifecycle_cash_flows",
     "lcoe",
+    "loan_life_coverage_ratio",
     "net_present_cost",
     "npv",
+    "scenario_input_hash",
+    "simple_payback",
 ]
