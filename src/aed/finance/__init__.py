@@ -28,12 +28,23 @@ from aed.finance.models import (
     FinanceScenario,
     IndicatorLineage,
 )
+from aed.finance.persistence import (
+    FinancePersistenceConflict,
+    FinancePersistenceError,
+    FinanceValidationInput,
+    persist_finance_scenario,
+    record_calculation_execution,
+    record_finance_validation_event,
+)
 
 __all__ = [
     "CalculationError",
     "CalculationRunIdentity",
     "DebtScheduleYear",
+    "FinancePersistenceConflict",
+    "FinancePersistenceError",
     "FinanceScenario",
+    "FinanceValidationInput",
     "IndicatorLineage",
     "affordability_metrics",
     "attach_indicator_lineage",
@@ -50,6 +61,9 @@ __all__ = [
     "loan_life_coverage_ratio",
     "net_present_cost",
     "npv",
+    "persist_finance_scenario",
+    "record_calculation_execution",
+    "record_finance_validation_event",
     "scenario_input_hash",
     "simple_payback",
 ]
