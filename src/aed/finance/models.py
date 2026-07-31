@@ -1,11 +1,14 @@
-"""Typed FIN-001 finance inputs and cross-field integrity controls."""
+"""Typed FIN-001 finance inputs, outputs and integrity controls."""
 from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+FORMULA_VERSION = "FIN-001.1"
+PERIOD_BASIS = "annual"
 
 EvidenceClass = Literal[
     "observed",
@@ -41,6 +44,21 @@ CostCategory = Literal[
 FinancingType = Literal["debt", "equity", "grant", "subsidy"]
 RepaymentProfile = Literal["level_principal", "annuity", "bullet", "custom"]
 EnergyUnit = Literal["kWh", "MWh", "GWh"]
+IRRStatus = Literal[
+    "unique_root",
+    "no_root",
+    "multiple_roots",
+    "invalid_cashflows",
+    "non_convergent",
+]
+PaybackStatus = Literal[
+    "exact",
+    "interpolated",
+    "no_payback",
+    "no_discounted_payback",
+    "invalid_cashflows",
+]
+LLCRStatus = Literal["calculated", "not_applicable", "invalid_inputs"]
 
 VERIFIED_STATES = {
     "source_verified",
@@ -55,6 +73,42 @@ class FinanceModel(BaseModel):
     """Strict base model for deterministic finance records."""
 
     model_config = ConfigDict(extra="forbid")
+
+
+class DeterministicIndicatorResult(FinanceModel):
+    """Common auditable metadata returned by deterministic indicators."""
+
+    method: str = Field(min_length=1)
+    formula_version: Literal["FIN-001.1"] = FORMULA_VERSION
+    period_basis: Literal["annual"] = PERIOD_BASIS
+    warnings: list[str] = Field(default_factory=list)
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+
+
+class IRRResult(DeterministicIndicatorResult):
+    value: Decimal | None = None
+    status: IRRStatus
+    tolerance: Decimal = Field(gt=0)
+    iterations: int = Field(default=0, ge=0)
+
+
+class PaybackResult(DeterministicIndicatorResult):
+    value: Decimal | None = None
+    status: PaybackStatus
+    discount_rate: Decimal | None = None
+
+
+class LLCRPeriodValue(FinanceModel):
+    period: int = Field(ge=1)
+    value: Decimal
+
+
+class LLCRResult(DeterministicIndicatorResult):
+    initial_llcr: Decimal | None = None
+    minimum_llcr: Decimal | None = None
+    period_values: list[LLCRPeriodValue] = Field(default_factory=list)
+    status: LLCRStatus
+    discount_rate: Decimal
 
 
 class Money(FinanceModel):
@@ -91,7 +145,9 @@ class Uncertainty(FinanceModel):
     @model_validator(mode="after")
     def validate_interval(self):
         if self.upper < self.lower:
-            raise ValueError("Uncertainty upper bound must not be below its lower bound.")
+            raise ValueError(
+                "Uncertainty upper bound must not be below its lower bound."
+            )
         return self
 
 
@@ -106,7 +162,9 @@ class EvidenceReference(FinanceModel):
     @model_validator(mode="after")
     def enforce_evidence_contract(self):
         if self.evidence_class in {"observed", "published"} and not self.source_id:
-            raise ValueError("Observed or published finance evidence requires source_id.")
+            raise ValueError(
+                "Observed or published finance evidence requires source_id."
+            )
         if (
             self.evidence_class == "unverified"
             and self.validation_status in VERIFIED_STATES
@@ -211,8 +269,10 @@ class FinanceScenario(FinanceModel):
 
     @model_validator(mode="after")
     def enforce_scenario_contract(self):
-        if self.formula_version != "FIN-001.1":
-            raise ValueError("FIN-001 currently accepts formula_version FIN-001.1 only.")
+        if self.formula_version != FORMULA_VERSION:
+            raise ValueError(
+                "FIN-001 currently accepts formula_version FIN-001.1 only."
+            )
         if self.discount_rate_basis != self.monetary_basis:
             raise ValueError("Cash-flow and discount-rate bases must match.")
         if self.monetary_basis == "nominal" and self.inflation_rate is None:

@@ -7,470 +7,455 @@
 - Data contract: `docs/finance/fin-001-data-contract.md`
 - Schema: `schemas/finance.schema.json`
 
-## 1. Symbols and timeline
+## 1. Scope and determinism
 
-The valuation date is year `t = 0`. The project horizon is `t = 0, 1, ..., T`, where `T` is the declared operating lifetime in years.
+FIN-001.1 defines annual, periodic, deterministic project-finance calculations. Pure calculation functions must satisfy:
+
+```text
+same normalized inputs
+→ same outputs
+→ same statuses
+→ same diagnostics
+```
+
+The calculation layer contains no database access, timestamps, random values, network access or implicit data transformations.
+
+## 2. Timeline and symbols
+
+The valuation date is `t = 0`. Annual end-of-period values occur at `t = 1, ..., T`.
 
 | Symbol | Definition |
 |---|---|
-| `r` | annual discount rate in decimal form |
-| `DF_t` | discount factor at year `t` |
-| `C_t` | non-financing lifecycle costs in year `t` |
-| `R_t` | operating revenue in year `t` |
-| `E_t` | energy delivered in year `t`, converted to the calculation unit |
-| `TV_t` | terminal or salvage value in year `t` |
-| `CF_t` | project net cash flow before financing in year `t` |
-| `D_t` | debt service in year `t` |
-| `CADS_t` | cash available for debt service in year `t` |
-| `B_t` | debt balance after payment in year `t` |
+| `r` | annual project discount rate in decimal form |
+| `r_D` | annual debt discount rate in decimal form |
+| `DF_t` | discount factor at period `t` |
+| `C_t` | lifecycle cost in period `t` |
+| `R_t` | project operating revenue in period `t` |
+| `E_t` | energy delivered in period `t` |
+| `TV_t` | terminal or salvage value in period `t` |
+| `CF_t` | project net cash flow before financing |
+| `CFADS_t` | cash flow available for debt service |
+| `D_t` | debt service in period `t` |
+| `B_t^open` | opening debt balance in period `t` |
+| `B_t^close` | closing debt balance after period-`t` payment |
 
-All rates are decimals. All monetary quantities in one calculation must share the scenario currency, price year and real/nominal basis after explicit transformations.
+All rates are decimals. Monetary values combined in one calculation must have compatible currency, price year and real/nominal basis.
 
-## 2. Discounting
+## 3. Discounting and basis consistency
 
-For annual end-of-period cash flows:
+For `r > -1`:
 
 ```math
 DF_t = \frac{1}{(1+r)^t}
 ```
 
-The present value of a series `X_t` is:
-
 ```math
 PV(X) = \sum_{t=0}^{T} X_t DF_t
 ```
 
-FIN-001 uses discrete annual discounting. Alternative periodicity is outside this formula version.
+Real cash flows require a real discount rate. Nominal cash flows require a nominal discount rate. FIN-001 never performs an implicit Fisher conversion.
 
-## 3. Real and nominal consistency
-
-Real cash flows require a real discount rate. Nominal cash flows require a nominal discount rate.
-
-When an explicit conversion is requested and inflation `π` is supplied, the exact Fisher relation is:
+When an explicit conversion is separately authorized:
 
 ```math
-1 + r_n = (1 + r_r)(1 + \pi)
+1+r_n=(1+r_r)(1+\pi)
 ```
 
-Therefore:
+## 4. Lifecycle costs and project cash flow
 
 ```math
-r_n = (1+r_r)(1+\pi)-1
-```
-
-and
-
-```math
-r_r = \frac{1+r_n}{1+\pi}-1
-```
-
-The engine must not perform this conversion implicitly.
-
-## 4. Lifecycle cost construction
-
-For each year, gross lifecycle costs are:
-
-```math
-C_t = CAPEX_t + OPEX^{fixed}_t + OPEX^{variable}_t + Fuel_t
+C_t = CAPEX_t + OPEX_t^{fixed} + OPEX_t^{variable} + Fuel_t
       + Replacement_t + Tax_t + Duty_t + Decommissioning_t
 ```
-
-Salvage or terminal value is not a negative input. It is recorded as a positive value and deducted in the project cash-flow equation:
 
 ```math
 CF_t = R_t - C_t + TV_t
 ```
 
-Cost events with `t > T` are excluded and reported. A cost event with `t < 0` is invalid.
+Events after the declared project horizon are excluded and reported. Negative event times are invalid.
 
-## 5. Net present cost
-
-Net present cost excludes financing transfers and operating revenue. It represents discounted lifecycle resource cost:
+## 5. Net present cost, energy and LCOE
 
 ```math
-NPC = \sum_{t=0}^{T} (C_t - TV_t)DF_t
+NPC = \sum_{t=0}^{T}(C_t-TV_t)DF_t
 ```
-
-When grants or subsidies are reported, the engine must distinguish:
-
-- economic NPC: before financing transfers;
-- sponsor or payer NPC: after explicitly identified grants or subsidies.
-
-FIN-001.1 calculates economic NPC as the canonical `net_present_cost`. Payer-specific NPC must be labelled separately.
-
-## 6. Discounted lifecycle energy and LCOE
-
-All annual energy is converted to the selected calculation unit before discounting:
 
 ```math
-E_{PV} = \sum_{t=1}^{T} E_t DF_t
+E_{PV}=\sum_{t=1}^{T}E_tDF_t
 ```
-
-The levelized cost of energy is:
 
 ```math
-LCOE = \frac{NPC}{E_{PV}}
+LCOE=\frac{NPC}{E_{PV}}
 ```
 
-Preconditions:
+`E_PV` must be strictly positive. A zero denominator produces a blocking result, never zero or infinity.
 
-```text
-E_t >= 0 for all t
-E_PV > 0
-```
-
-When `E_PV = 0`, LCOE is undefined. The engine returns a blocking validation result rather than infinity or zero.
-
-## 7. Revenue
+## 6. Revenue and NPV
 
 For customer class `h`:
 
 ```math
-Revenue_{h,t} = N_{h,t}
-\left(q_{h,t}\tau_{h,t} + 12 f_{h,t}\right)
+Revenue_{h,t}=N_{h,t}(q_{h,t}\tau_{h,t}+12f_{h,t})
 ```
-
-where:
-
-- `N_{h,t}` is connected customers;
-- `q_{h,t}` is annual energy consumption per customer;
-- `τ_{h,t}` is the tariff per energy unit;
-- `f_{h,t}` is the monthly fixed charge.
-
-Total operating revenue is:
-
-```math
-R_t = \sum_h Revenue_{h,t} + OtherRevenue_t
-```
-
-Connection charges are reported separately from recurring energy revenue unless the scenario explicitly classifies them as project revenue.
-
-## 8. Net present value
 
 Project NPV before financing is:
 
 ```math
-NPV(r) = \sum_{t=0}^{T} CF_t DF_t
+NPV(r)=\sum_{t=0}^{T}\frac{CF_t}{(1+r)^t}
 ```
 
-Equity NPV requires an equity cash-flow series that explicitly includes equity contributions, debt drawdowns, debt service and distributions. It must not be labelled project NPV.
+Equity NPV is a separate indicator and requires an explicit equity cash-flow series.
 
-## 9. Internal rate of return
+## 7. Internal rate of return policy
 
-IRR is any real root `x > -1` satisfying:
+IRR is a real root satisfying:
 
 ```math
-0 = \sum_{t=0}^{T} \frac{CF_t}{(1+x)^t}
+0=\sum_{t=0}^{T}\frac{CF_t}{(1+r)^t}, \qquad r>-1
 ```
 
-FIN-001 root policy:
+### 7.1 Preconditions
 
-1. detect sign changes in the cash-flow sequence;
-2. search a documented bounded interval;
-3. report no root when none is found;
-4. report multiple roots when more than one admissible root exists;
-5. never select one root silently;
-6. return the numerical method, tolerance and bracket with the result.
+- cash flows are periodic annual values ordered from `t = 0`;
+- every value is finite;
+- at least one value is negative and at least one is positive;
+- no scalar result is returned when those sign conditions fail.
 
-A scenario with no negative and positive cash-flow values does not have a conventional IRR.
+### 7.2 Deterministic solver domain
 
-## 10. Payback periods
-
-Simple cumulative cash flow is:
-
-```math
-S_t = \sum_{k=0}^{t} CF_k
-```
-
-Simple payback is the earliest time where `S_t >= 0` after an initially negative cumulative balance. Linear interpolation within the crossing year may be used and must be labelled.
-
-Discounted cumulative cash flow is:
-
-```math
-S^{PV}_t = \sum_{k=0}^{t} CF_k DF_k
-```
-
-Discounted payback uses the same crossing rule. If no crossing occurs within the horizon, the result is undefined with reason `not_recovered_within_horizon`.
-
-## 11. Debt schedule
-
-Let initial debt principal be `P`, annual interest rate `i`, tenor `n`, and grace period `g`.
-
-Interest in year `t` is calculated on the opening balance:
-
-```math
-Interest_t = i B_{t-1}
-```
-
-The debt identity is:
-
-```math
-B_t = B_{t-1} + Draw_t - Principal_t
-```
-
-with:
+FIN-001.1 uses the bounded admissible domain:
 
 ```text
-B_t >= 0
-Principal_t >= 0
-D_t = Interest_t + Principal_t + Fees_t
+-0.999999 <= r <= 10
 ```
 
-### 11.1 Level principal
+The domain corresponds to rates from approximately `-99.9999%` to `1000%`. A root outside the domain is not asserted by this formula version.
 
-After the grace period:
+The search grid contains `8,192` intervals uniform in `log(1+r)`, plus explicit lower bound, zero and upper bound points. This improves deterministic coverage near `r = -1` while retaining positive-rate coverage.
 
-```math
-Principal_t = \frac{P}{n-g}
-```
+### 7.3 Root solver
 
-subject to the final payment being adjusted for decimal rounding so that the closing balance is exactly zero within tolerance.
+1. evaluate NPV across the fixed grid;
+2. retain exact or tolerance-level sampled roots;
+3. identify every sign-changing bracket;
+4. solve each bracket by bisection;
+5. deduplicate roots within `100 ×` the declared rate tolerance;
+6. validate each retained root using its NPV residual.
 
-### 11.2 Annuity
-
-For `i > 0`, the constant annual payment is:
-
-```math
-A = P\frac{i(1+i)^m}{(1+i)^m-1}
-```
-
-where `m = n-g` is the number of amortizing periods. Then:
-
-```math
-Principal_t = A - Interest_t
-```
-
-For `i = 0`:
-
-```math
-A = \frac{P}{m}
-```
-
-### 11.3 Bullet
-
-During the tenor:
-
-```math
-Principal_t = 0, \quad t < n
-```
-
-and at maturity:
-
-```math
-Principal_n = P
-```
-
-### 11.4 Custom
-
-A custom schedule must provide every draw, principal and fee value explicitly. The engine verifies the balance identity and final balance.
-
-## 12. Cash available for debt service
-
-The default project-finance definition is:
-
-```math
-CADS_t = Revenue_t - OperatingCost_t - Tax_t - MaintenanceCAPEX_t
-         \pm WorkingCapitalAdjustment_t
-```
-
-Initial construction CAPEX and financing flows are excluded from CADS. The exact included line items are returned with the indicator lineage.
-
-## 13. Debt-service coverage ratio
-
-For each debt-service year:
-
-```math
-DSCR_t = \frac{CADS_t}{D_t}
-```
-
-Precondition:
+Default controls:
 
 ```text
-D_t > 0
+rate tolerance = 1e-10
+maximum bisection iterations per bracket = 256
+residual tolerance = max(1e-18, max(|CF_t|) × 1e-12)
+period basis = annual
+method = deterministic_bracketed_solver
 ```
 
-Years with zero debt service do not receive a numeric DSCR. Minimum DSCR is:
+No single-start Newton–Raphson method is permitted.
 
-```math
-DSCR_{min} = \min_{t:D_t>0} DSCR_t
-```
-
-## 14. Loan-life coverage ratio
-
-At calculation year `k`, remaining debt is `B_k`. The present value of CADS over the remaining loan life is discounted at the declared debt discount rate `r_d`:
-
-```math
-LLCR_k = \frac{\sum_{t=k+1}^{n} CADS_t(1+r_d)^{-(t-k)}}{B_k}
-```
-
-Preconditions:
+### 7.4 IRR statuses
 
 ```text
-B_k > 0
-remaining CADS horizon covers the remaining loan tenor
+unique_root       exactly one admissible validated root
+no_root           no root found inside the documented domain
+multiple_roots    more than one admissible validated root
+invalid_cashflows sign or numeric preconditions fail
+non_convergent    one or more detected brackets fail to converge
 ```
 
-## 15. Break-even tariff
+A scalar `value` is returned only for `unique_root`. For `multiple_roots`, `value = null` and all validated candidates and residuals are returned in diagnostics.
 
-Let `Q_t` be billable energy and `F_t` all non-energy recurring revenues. The constant break-even tariff `τ*` that gives project NPV equal to zero is:
+## 8. Simple payback policy
+
+Cumulative undiscounted project cash flow is:
 
 ```math
-\tau^* =
-\frac{\sum_{t=0}^{T}(C_t-TV_t-F_t)DF_t}
-     {\sum_{t=1}^{T}Q_tDF_t}
+S_t=\sum_{\tau=0}^{t}CF_\tau
 ```
 
-The denominator must be strictly positive. Taxes or losses tied to tariff revenue require an extended equation and are outside the closed-form FIN-001.1 expression.
+The first recovery is the earliest `t` for which cumulative cash flow changes from negative to non-negative.
 
-## 16. Required subsidy or viability-gap amount
-
-For a target NPV of zero and a subsidy paid at year `s`:
+- If `S_0 >= 0`, payback is exactly `0`.
+- If `S_t = 0`, payback is exactly period `t`.
+- If `S_{t-1}<0`, `S_t>0` and `CF_t>0`, linear interpolation is:
 
 ```math
-Subsidy_s = -\frac{NPV_{without\ subsidy}}{DF_s}
+PB=(t-1)+\frac{-S_{t-1}}{CF_t}
 ```
 
-The reported required subsidy is:
+- If cumulative cash flow remains negative through the horizon, status is `no_payback`.
+- Revenue-only recovery is prohibited; the input is the defined net project cash-flow sequence.
 
-```math
-RequiredSubsidy_s = \max(0, Subsidy_s)
-```
-
-A negative calculated value means no subsidy is required under the scenario; it is not reported as a negative subsidy.
-
-## 17. Household energy burden
-
-For customer class `h`, monthly recurring electricity expenditure is:
-
-```math
-Bill_h = \frac{q_h\tau_h}{12} + f_h
-```
-
-Monthly household energy burden is:
-
-```math
-EB_h = \frac{Bill_h}{Income_h}
-```
-
-Precondition:
+Statuses:
 
 ```text
-Income_h > 0
+exact
+interpolated
+no_payback
+invalid_cashflows
 ```
 
-The engine reports the ratio and percentage. It does not impose a universal affordability threshold unless the threshold is supplied with evidence.
-
-## 18. Connection-cost burden
+## 9. Discounted payback policy
 
 ```math
-CB_h = \frac{ConnectionCharge_h}{Income_h}
+DCF_t=\frac{CF_t}{(1+r)^t}
 ```
-
-The result is expressed in months of disposable income. Any financing of the connection charge must be modelled separately.
-
-## 19. Productive-use affordability
-
-For productive-use class `p`, energy-cost intensity is:
 
 ```math
-ECI_p = \frac{AnnualElectricityExpenditure_p}{AnnualOperatingRevenue_p}
+S_t^{PV}=\sum_{\tau=0}^{t}DCF_\tau
 ```
 
-or, when output quantity is available:
+Discounted payback uses the same first-crossing and interpolation convention as simple payback, applied to `DCF_t`.
+
+Mandatory controls:
+
+- `r > -1` and finite;
+- real cash flows use a real rate;
+- nominal cash flows use a nominal rate;
+- mixed bases are rejected;
+- the exact discount rate and both basis labels are returned;
+- recovery absent inside the horizon returns `no_discounted_payback`.
+
+A valid simple payback with no discounted payback is an admissible result.
+
+## 10. Debt schedules
+
+Interest is computed on the opening balance:
 
 ```math
-UnitEnergyCost_p = \frac{AnnualElectricityExpenditure_p}{AnnualOutput_p}
+Interest_t=iB_t^{open}
 ```
-
-The denominator must be strictly positive and its unit must be returned. FIN-001 does not infer business revenue or output from population data.
-
-## 20. Financing reconciliation
-
-Let `F_j` be financing component amounts and `FundingRequirement` the declared amount to be financed:
 
 ```math
-Residual = \sum_j F_j - FundingRequirement
+B_t^{close}=B_t^{open}-Principal_t
 ```
-
-The financing structure passes when:
 
 ```math
-|Residual| \le \max(\epsilon_{abs}, \epsilon_{rel}|FundingRequirement|)
+D_t=Interest_t+Principal_t+Fees_t
 ```
 
-Default tolerances for FIN-001.1:
+Consecutive periods must reconcile:
+
+```math
+B_{t+1}^{open}=B_t^{close}
+```
+
+### 10.1 Level principal
+
+```math
+Principal_t=\frac{P}{n-g}
+```
+
+after the grace period, with the final payment absorbing any residual.
+
+### 10.2 Annuity
+
+For `i>0` and `m=n-g` amortizing periods:
+
+```math
+A=P\frac{i(1+i)^m}{(1+i)^m-1}
+```
+
+```math
+Principal_t=A-Interest_t
+```
+
+For `i=0`, `A=P/m`.
+
+### 10.3 Bullet
+
+Principal is zero before maturity and the full opening balance is repaid at maturity.
+
+## 11. DSCR
+
+```math
+DSCR_t=\frac{CFADS_t}{D_t}
+```
+
+A numeric DSCR exists only where `D_t>0`.
+
+```math
+DSCR_{min}=\min_{t:D_t>0}DSCR_t
+```
+
+## 12. LLCR policy
+
+At the start of debt period `t`:
+
+```math
+LLCR_t=
+\frac{
+\displaystyle\sum_{\tau=t}^{T_D}
+\frac{CFADS_\tau}{(1+r_D)^{\tau-t}}
+}{B_t^{open}}
+```
+
+where `T_D` is the final period with debt outstanding at the start of the period.
+
+### 12.1 Timing and denominator
+
+- the calculation date is the start of period `t`;
+- `CFADS_t` is included with exponent zero;
+- the denominator is `B_t^open`, never the closing balance;
+- post-maturity project cash flows are excluded;
+- negative CFADS is retained and reduces the numerator.
+
+### 12.2 Controls
+
+- schedule periods are unique, consecutive and annual;
+- opening and closing balances are finite and non-negative;
+- the balance and debt-service identities reconcile;
+- every CFADS period inside the remaining loan life is present;
+- `r_D > -1` and is finite;
+- CFADS basis matches the debt-rate basis.
+
+### 12.3 Outputs and statuses
+
+The engine returns:
 
 ```text
-ε_abs = 0.01 reporting-currency units
-ε_rel = 1e-9
+initial_llcr
+minimum_llcr
+period_values[{period, value}]
+discount_rate
+formula_version
+method
+warnings
+diagnostics
 ```
 
-The tolerances are formula metadata and may not be changed silently.
-
-## 21. Decimal and rounding policy
-
-- Monetary inputs and outputs use decimal-safe arithmetic at persistence and API boundaries.
-- Internal discounting may use high-precision decimal arithmetic or carefully controlled binary floating point with explicit tolerances.
-- Debt schedules round displayed monetary values to the reporting-currency precision.
-- The final principal payment absorbs accumulated rounding residuals.
-- Indicator calculations retain unrounded internal values and record display precision separately.
-
-## 22. Formula lineage
-
-Every result records:
+Statuses:
 
 ```text
+calculated      at least one opening debt balance is positive
+not_applicable  no debt exists or debt is already fully repaid
+invalid_inputs  timing, basis, rate, balance or CFADS controls fail
+```
+
+Zero outstanding debt never produces infinity.
+
+## 13. Break-even tariff and subsidy
+
+For positive discounted billable energy:
+
+```math
+\tau^*=\frac{\sum_{t=0}^{T}(C_t-TV_t-F_t)DF_t}
+{\sum_{t=1}^{T}Q_tDF_t}
+```
+
+For a subsidy paid at year `s`:
+
+```math
+RequiredSubsidy_s=
+\max\left(0,-\frac{NPV_{without\ subsidy}}{DF_s}\right)
+```
+
+## 14. Affordability
+
+```math
+Bill_h=\frac{q_h\tau_h}{12}+f_h
+```
+
+```math
+EnergyBurden_h=\frac{Bill_h}{Income_h}
+```
+
+```math
+ConnectionBurden_h=\frac{ConnectionCharge_h}{Income_h}
+```
+
+Income must be strictly positive. No universal affordability threshold is inferred.
+
+## 15. Financing reconciliation
+
+```math
+Residual=\sum_jF_j-FundingRequirement
+```
+
+The structure passes when:
+
+```math
+|Residual|\le\max(0.01,10^{-9}|FundingRequirement|)
+```
+
+All financing amounts must share the scenario currency, price year and basis.
+
+## 16. Typed deterministic result contract
+
+IRR, payback and LLCR do not return unlabelled `float | None` values. Result objects expose indicator-specific values plus:
+
+```text
+status
+method
 formula_version = FIN-001.1
+period_basis = annual
+warnings
+diagnostics
+```
+
+IRR additionally records tolerance and iteration count. Discounted payback records the exact rate. LLCR records the complete period series and debt discount rate.
+
+## 17. Decimal and rounding policy
+
+- API and persistence boundaries use decimal-safe monetary values.
+- Internal deterministic metrics retain unrounded values.
+- Display rounding is separate from calculation precision.
+- Final debt principal absorbs residual arithmetic differences.
+- Numeric tolerances are returned and cannot change silently.
+
+## 18. Formula lineage
+
+Every persisted result will eventually record:
+
+```text
+formula_version
 scenario_id
 scenario_version
 calculation_run_id
 input_hash
-calculation timestamp
-software version
+software_version
 warnings
 ```
 
-The input hash is computed over a canonical serialized scenario after validation. The same scenario version, formula version and software version must reproduce the same deterministic result within documented numeric tolerance.
+Hashing, persistence and run IDs are outside the deterministic-metrics commit and will be implemented in the next FIN-001 stage.
 
-## 23. Blocking validation conditions
+## 19. Blocking conditions
 
-Calculation is blocked when any of the following holds:
+Calculation is blocked or returned with an explicit failure status for:
 
-- missing currency, price year or monetary basis;
-- incompatible currencies without explicit FX transformation;
-- nominal/real mismatch;
-- project lifetime is not positive;
-- negative energy delivery;
-- zero discounted energy when LCOE is requested;
-- financing does not reconcile;
-- debt terms are incomplete or invalid;
-- debt principal becomes negative beyond tolerance;
-- affordability denominator is non-positive;
-- observed or published evidence lacks a source identifier;
-- a non-synthetic scenario lacks a registered project identifier;
-- a result cannot retain formula and input lineage.
+- missing or non-finite inputs;
+- incompatible currency, price year or basis;
+- `r <= -1` where discounting is required;
+- no positive and negative cash flows for IRR;
+- zero discounted energy for LCOE;
+- financing reconciliation failure;
+- non-consecutive or inconsistent debt schedules;
+- missing CFADS inside loan life;
+- non-positive affordability denominators;
+- inability to preserve formula and input lineage.
 
-## 24. Verification fixtures
+## 20. Required deterministic fixtures
 
-Implementation tests must include hand-calculated fixtures for:
+FIN-001.1 tests include:
 
-- one-period and multi-period NPV;
-- lifecycle cost and LCOE;
-- terminal value discounting;
-- level-principal, annuity and bullet debt schedules;
-- DSCR;
-- break-even tariff;
-- required subsidy;
-- household burden and connection burden;
-- no-IRR and multiple-IRR conditions;
-- zero-energy LCOE rejection;
-- currency and basis mismatch rejection.
+- unique, zero, negative, absent and multiple IRR roots;
+- IRR scale invariance and residual verification;
+- exact, interpolated and absent simple payback;
+- discounted payback basis rejection;
+- simple payback with absent discounted payback;
+- level-principal, annuity and bullet LLCR;
+- no-debt and fully-repaid LLCR;
+- negative CFADS;
+- exclusion of post-maturity CFADS;
+- minimum LLCR and opening-balance denominator;
+- existing NPV, LCOE, DSCR and affordability fixtures.
 
-## 25. Change control
+## 21. Change control
 
-Any change to formulas, timing conventions, sign conventions, root policy, tolerances or rounding policy requires:
+Any change to timing, signs, solver domain, tolerances, interpolation, denominator definitions or failure statuses requires:
 
 1. a new formula version;
 2. a compatibility note;
 3. new hand-calculated fixtures;
-4. migration or recalculation guidance for persisted results.
+4. recalculation guidance for persisted results.
