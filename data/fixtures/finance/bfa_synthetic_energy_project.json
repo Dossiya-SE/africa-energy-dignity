@@ -1,0 +1,639 @@
+{
+  "scenario_id": "finance.scenario.synthetic.bfa.energy_project.v1",
+  "name": "Synthetic Burkina Faso Energy Project Finance Scenario",
+  "scenario_version": "1.0.0",
+  "formula_version": "FIN-001.1",
+  "geography_id": "geo.bfa",
+  "project_id": null,
+  "is_synthetic": true,
+  "reporting_currency": "XOF",
+  "price_year": 2026,
+  "monetary_basis": "real",
+  "discount_rate": "0.08",
+  "discount_rate_basis": "real",
+  "inflation_rate": null,
+  "funding_requirement": {
+    "amount": "1000000000",
+    "currency": "XOF",
+    "price_year": 2026,
+    "basis": "real"
+  },
+  "project_start_year": 2026,
+  "project_lifetime_years": 10,
+  "construction_years": 1,
+  "cost_items": [
+    {
+      "cost_id": "cost.synthetic.capex",
+      "category": "capex",
+      "timing_year": 0,
+      "value": {
+        "amount": "1000000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented round-value capital cost for software verification only; not a Burkina Faso project estimate."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y1",
+      "category": "fixed_opex",
+      "timing_year": 1,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y2",
+      "category": "fixed_opex",
+      "timing_year": 2,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y3",
+      "category": "fixed_opex",
+      "timing_year": 3,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y4",
+      "category": "fixed_opex",
+      "timing_year": 4,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y5",
+      "category": "fixed_opex",
+      "timing_year": 5,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y6",
+      "category": "fixed_opex",
+      "timing_year": 6,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y7",
+      "category": "fixed_opex",
+      "timing_year": 7,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y8",
+      "category": "fixed_opex",
+      "timing_year": 8,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y9",
+      "category": "fixed_opex",
+      "timing_year": 9,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.fixed_opex.y10",
+      "category": "fixed_opex",
+      "timing_year": 10,
+      "value": {
+        "amount": "20000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented annual operating cost for deterministic testing only; not observed or published evidence."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.replacement.y6",
+      "category": "replacement",
+      "timing_year": 6,
+      "value": {
+        "amount": "100000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented replacement event used to exercise lifecycle timing; not an engineering quotation."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "cost_id": "cost.synthetic.salvage.y10",
+      "category": "salvage_value",
+      "timing_year": 10,
+      "value": {
+        "amount": "50000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "quantity_driver": null,
+      "quantity_unit": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented terminal salvage value for formula verification only; not a market valuation."
+        ],
+        "uncertainty": null
+      }
+    }
+  ],
+  "annual_energy": [
+    {
+      "year": 1,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 2,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 3,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 4,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 5,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 6,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 7,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 8,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 9,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "year": 10,
+      "energy": "1200",
+      "unit": "MWh",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented constant annual generation for deterministic testing; not a measured production forecast."
+        ],
+        "uncertainty": null
+      }
+    }
+  ],
+  "financing_components": [
+    {
+      "component_id": "financing.synthetic.debt",
+      "type": "debt",
+      "amount": {
+        "amount": "500000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "interest_rate": "0.07",
+      "tenor_years": 6,
+      "grace_period_years": 1,
+      "repayment_profile": "annuity",
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented debt terms for testing repayment logic; not a lender offer or market quote."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "component_id": "financing.synthetic.equity",
+      "type": "equity",
+      "amount": {
+        "amount": "300000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "interest_rate": null,
+      "tenor_years": null,
+      "grace_period_years": null,
+      "repayment_profile": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented equity contribution for financing reconciliation only."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "component_id": "financing.synthetic.grant",
+      "type": "grant",
+      "amount": {
+        "amount": "200000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "interest_rate": null,
+      "tenor_years": null,
+      "grace_period_years": null,
+      "repayment_profile": null,
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "Invented grant contribution for scenario testing; not an award or commitment."
+        ],
+        "uncertainty": null
+      }
+    }
+  ],
+  "customer_classes": [
+    {
+      "customer_class_id": "customer.synthetic.household",
+      "name": "Synthetic household customers",
+      "customer_count": 1000,
+      "annual_consumption_per_customer": "600",
+      "energy_unit": "kWh",
+      "tariff_per_energy": {
+        "amount": "150",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "monthly_fixed_charge": {
+        "amount": "1000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "monthly_disposable_income": {
+        "amount": "150000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "connection_charge": {
+        "amount": "50000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "All household counts, consumption, tariffs, income and connection charges are invented test assumptions."
+        ],
+        "uncertainty": null
+      }
+    },
+    {
+      "customer_class_id": "customer.synthetic.productive_use",
+      "name": "Synthetic productive-use customers",
+      "customer_count": 100,
+      "annual_consumption_per_customer": "6000",
+      "energy_unit": "kWh",
+      "tariff_per_energy": {
+        "amount": "180",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "monthly_fixed_charge": {
+        "amount": "5000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "monthly_disposable_income": {
+        "amount": "1000000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "connection_charge": {
+        "amount": "200000",
+        "currency": "XOF",
+        "price_year": 2026,
+        "basis": "real"
+      },
+      "evidence": {
+        "source_id": null,
+        "evidence_class": "scenario",
+        "validation_status": "schema_valid",
+        "responsible_contributor": "AED synthetic-fixture maintainer",
+        "limitations": [
+          "All productive-use counts, consumption, tariffs, income and connection charges are invented test assumptions."
+        ],
+        "uncertainty": null
+      }
+    }
+  ],
+  "validation_status": "schema_valid",
+  "responsible_contributor": "AED synthetic-fixture maintainer",
+  "created_at": "2026-07-31T00:00:00Z",
+  "updated_at": "2026-07-31T00:00:00Z"
+}
