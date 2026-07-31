@@ -19,11 +19,11 @@ export default async function HomePage() {
           <h1>Evidence before infrastructure decisions.</h1>
           <p>
             A sovereign workspace for tracing African energy evidence from original publisher
-            through validation, geography, engineering and later public decisions.
+            through validation, geography, engineering, finance and later public decisions.
           </p>
           <div className="hero-actions">
-            <Link className="button" href="/evidence">
-              Explore evidence
+            <Link className="button" href="/finance">
+              Open Finance Studio
             </Link>
             <Link className="button-secondary" href="/burkina-faso">
               Open Burkina Faso
@@ -52,7 +52,7 @@ export default async function HomePage() {
             </div>
             <div>
               <dt>Product phase</dt>
-              <dd>Evidence and Geography MVP</dd>
+              <dd>Evidence, Geography and Finance MVP</dd>
             </div>
           </dl>
         </aside>
@@ -62,7 +62,7 @@ export default async function HomePage() {
         <Notice title="Registry connection is incomplete" tone="warning">
           <p>
             AED Studio is not substituting example values. Start the API and database to display
-            controlled registry records.
+            controlled registry and finance records.
           </p>
         </Notice>
       ) : null}
@@ -70,7 +70,7 @@ export default async function HomePage() {
       <section className="section">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">First operational workspaces</p>
+            <p className="eyebrow">Operational workspaces</p>
             <h2>Traceable evidence, visible uncertainty</h2>
           </div>
         </div>
@@ -82,9 +82,7 @@ export default async function HomePage() {
               Inspect publishers, licences, temporal coverage, limitations and verification
               states without converting candidates into facts.
             </p>
-            <Link className="text-link" href="/evidence">
-              Open catalogue
-            </Link>
+            <Link className="text-link" href="/evidence">Open catalogue</Link>
           </article>
           <article className="card">
             <p className="card-kicker">Institutions</p>
@@ -93,9 +91,7 @@ export default async function HomePage() {
               Track national and regional institutions separately from platforms that merely
               display their data.
             </p>
-            <Link className="text-link" href="/institutions">
-              View institutions
-            </Link>
+            <Link className="text-link" href="/institutions">View institutions</Link>
           </article>
           <article className="card">
             <p className="card-kicker">Geography</p>
@@ -104,9 +100,16 @@ export default async function HomePage() {
               Use cartographic context while refusing to display invented boundaries or
               unverified infrastructure layers.
             </p>
-            <Link className="text-link" href="/map">
-              Open map workspace
-            </Link>
+            <Link className="text-link" href="/map">Open map workspace</Link>
+          </article>
+          <article className="card">
+            <p className="card-kicker">Finance</p>
+            <h2>Exact, traceable calculations</h2>
+            <p>
+              Execute immutable FIN-001 scenarios and inspect cash flow, investment indicators,
+              affordability, formula lineage and validation warnings.
+            </p>
+            <Link className="text-link" href="/finance">Open Finance Studio</Link>
           </article>
         </div>
       </section>

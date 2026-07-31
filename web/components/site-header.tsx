@@ -6,6 +6,7 @@ const navigation = [
   { href: "/institutions", label: "Institutions" },
   { href: "/burkina-faso", label: "Burkina Faso" },
   { href: "/map", label: "Map" },
+  { href: "/finance", label: "Finance" },
 ];
 
 export function SiteHeader() {
@@ -13,10 +14,10 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="header-inner">
         <Link className="brand" href="/" aria-label="Africa Energy Dignity Studio home">
-          <span className="brand-mark" aria-hidden="true">AED</span>
+          <span className="brand-mark">AED</span>
           <span>
             <strong>Africa Energy Dignity</strong>
-            <small>Evidence and Geography Studio</small>
+            <small>Evidence, Geography and Finance Studio</small>
           </span>
         </Link>
         <nav aria-label="Primary navigation">
