@@ -17,6 +17,7 @@ SCHEMA_FILES = (
     "schemas/infrastructure.schema.json",
     "schemas/policies.schema.json",
     "schemas/sources.schema.json",
+    "schemas/finance.schema.json",
 )
 
 
