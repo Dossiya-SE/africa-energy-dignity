@@ -6,9 +6,11 @@ The AED Studio presents deterministic FIN-001 records.
 
 The controlled local Finance Studio review was completed on 2026-07-31 against the seeded synthetic SQLite scenario. No defects were reported in scenario disclosure, deterministic execution identity, finance indicators, affordability results, validation evidence, responsive behavior or keyboard-accessible controls.
 
-Exact-head GitHub Actions run `30638251439` passed at commit `85aa7779fde3658016da578b7c9f7a2789288d16`:
+The prior Studio unused-variable lint warning was removed in commit `85aa7779fde3658016da578b7c9f7a2789288d16`.
 
-- AED Studio lint completed without the prior unused-variable warning;
+Exact-head GitHub Actions run `30638392794` passed at commit `caf4f99d0408842582a8213cb2b8b31c11af896d`:
+
+- AED Studio lint passed without the prior warning;
 - strict TypeScript passed;
 - 15 frontend tests passed;
 - the Next.js production build generated the `/finance` route;
