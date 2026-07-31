@@ -1,0 +1,224 @@
+{
+  "canonical": {
+    "affine_transform": [
+      0.0083333333,
+      0.0,
+      -5.517916645212949,
+      0.0,
+      -0.0083333333,
+      15.091250142574808
+    ],
+    "band_count": 1,
+    "bounds": [
+      -5.517916645212949,
+      9.407916831974807,
+      2.4070833230870514,
+      15.091250142574808
+    ],
+    "coverage": {
+      "boundary_pixel_count": 325041,
+      "bounds_cover_generalized_boundary": false,
+      "coverage_method": "valid raster cell centres inside the reference boundary divided by all reference-boundary cell centres on the raster grid",
+      "minimum_required_ratio": 0.95,
+      "raster_bounds": [
+        -5.517916645212949,
+        9.407916831974807,
+        2.4070833230870514,
+        15.091250142574808
+      ],
+      "reference_boundary_bounds": [
+        -5.470565,
+        9.610835,
+        2.177108,
+        15.116158
+      ],
+      "valid_coverage_ratio": 0.9719481542328506,
+      "valid_pixels_inside_boundary": 315923
+    },
+    "crs": "EPSG:4326",
+    "driver": "GTiff",
+    "dtype": "float32",
+    "epsg": 4326,
+    "file_size_bytes": 1338758,
+    "filename": "bfa_ppp_2020_1km_Aggregated.cog.tif",
+    "height": 682,
+    "maximum_valid_value": 9504.8994140625,
+    "minimum_valid_value": 0.31050005555152893,
+    "nodata": -99999.0,
+    "nodata_pixel_count": 319883,
+    "resolution_arcseconds": [
+      29.99999988,
+      29.99999988
+    ],
+    "resolution_degrees": [
+      0.0083333333,
+      0.0083333333
+    ],
+    "sha256": "b8aa164c8e56190ebb6875458fdbf86ad044b266b75aaebe014739b5834bd3b1",
+    "storage_uri": "https://github.com/Dossiya-SE/africa-energy-dignity/releases/download/geo-002-worldpop-bfa-2020-v1/bfa_ppp_2020_1km_Aggregated.cog.tif",
+    "sum_valid_population_cells": 22811078.2325013,
+    "valid_pixel_count": 328699,
+    "width": 951
+  },
+  "evidence_id": "worldpop-bfa-population-2020-1km-aggregated",
+  "known_limitations": [
+    "Modeled population distribution, not a pixel-level census enumeration.",
+    "The source product represents 2020 conditions and should not be treated as current population.",
+    "People-per-pixel values depend on WorldPop input data and Random-Forest dasymetric redistribution.",
+    "The PNG preview is a log-scaled visualization derivative and must not be used for quantitative analysis.",
+    "No external reference population total is asserted in this validation; the recorded total is computed from valid raster cells only."
+  ],
+  "licence": {
+    "attribution": "WorldPop (School of Geography and Environmental Science, University of Southampton) and the dataset-specific recommended citation.",
+    "identifier": "CC-BY-4.0",
+    "name": "Creative Commons Attribution 4.0 International",
+    "recommended_citation": "WorldPop and CIESIN (2018), Global High Resolution Population Denominators Project, DOI 10.5258/SOTON/WP00647.",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "model": {
+    "coordinate_reference_system_family": "WGS84 geographic coordinates",
+    "nominal_resolution": "30 arc-seconds, approximately 1 km at the equator",
+    "type": "Random Forest-based dasymetric redistribution",
+    "units": "persons per pixel"
+  },
+  "official_filename": "bfa_ppp_2020_1km_Aggregated.tif",
+  "original": {
+    "affine_transform": [
+      0.0083333333,
+      0.0,
+      -5.517916645212949,
+      0.0,
+      -0.0083333333,
+      15.091250142574808
+    ],
+    "band_count": 1,
+    "bounds": [
+      -5.517916645212949,
+      9.407916831974807,
+      2.4070833230870514,
+      15.091250142574808
+    ],
+    "coverage": {
+      "boundary_pixel_count": 325041,
+      "bounds_cover_generalized_boundary": false,
+      "coverage_method": "valid raster cell centres inside the reference boundary divided by all reference-boundary cell centres on the raster grid",
+      "minimum_required_ratio": 0.95,
+      "raster_bounds": [
+        -5.517916645212949,
+        9.407916831974807,
+        2.4070833230870514,
+        15.091250142574808
+      ],
+      "reference_boundary_bounds": [
+        -5.470565,
+        9.610835,
+        2.177108,
+        15.116158
+      ],
+      "valid_coverage_ratio": 0.9719481542328506,
+      "valid_pixels_inside_boundary": 315923
+    },
+    "crs": "EPSG:4326",
+    "driver": "GTiff",
+    "dtype": "float32",
+    "epsg": 4326,
+    "file_size_bytes": 1558897,
+    "filename": "bfa_ppp_2020_1km_Aggregated.tif",
+    "height": 682,
+    "maximum_valid_value": 9504.8994140625,
+    "minimum_valid_value": 0.31050005555152893,
+    "nodata": -99999.0,
+    "nodata_pixel_count": 319883,
+    "resolution_arcseconds": [
+      29.99999988,
+      29.99999988
+    ],
+    "resolution_degrees": [
+      0.0083333333,
+      0.0083333333
+    ],
+    "sha256": "1126f07b5f1b12872d4b20e58dcdf2cef27c1453c682ebdd3109804624c10a3b",
+    "storage_uri": "https://github.com/Dossiya-SE/africa-energy-dignity/releases/download/geo-002-worldpop-bfa-2020-v1/bfa_ppp_2020_1km_Aggregated.tif",
+    "sum_valid_population_cells": 22811078.2325013,
+    "valid_pixel_count": 328699,
+    "width": 951
+  },
+  "preview": {
+    "bounds": [
+      -5.517916645212949,
+      9.407916831974807,
+      2.4070833230870514,
+      15.091250142574808
+    ],
+    "file_size_bytes": 503071,
+    "filename": "bfa_ppp_2020_1km_Aggregated.preview.png",
+    "height": 682,
+    "media_type": "image/png",
+    "sha256": "fdd92244bbe286ce53e7183cee814207193f365f4ec37f88f8537673be0766d5",
+    "storage_uri": "https://github.com/Dossiya-SE/africa-energy-dignity/releases/download/geo-002-worldpop-bfa-2020-v1/bfa_ppp_2020_1km_Aggregated.preview.png",
+    "visualization": {
+      "alpha": 205,
+      "lower_percentile": 2,
+      "purpose": "Map visualization derivative; not an analytical raster.",
+      "scale": "log1p",
+      "upper_percentile": 98
+    },
+    "width": 951
+  },
+  "product_title": "The spatial distribution of population in 2020",
+  "product_year": 2020,
+  "publisher": "WorldPop, University of Southampton",
+  "resolved_locator": "https://data.worldpop.org/GIS/Population/Global_2000_2020_1km/2020/BFA/bfa_ppp_2020_1km_Aggregated.tif",
+  "retrieval_headers": {
+    "content_length": "1558897",
+    "content_type": "image/tiff",
+    "etag": "\"17c971-5a8ac0c5649b1\"",
+    "last_modified": "Mon, 22 Jun 2020 13:16:18 GMT",
+    "resolved_url": "https://data.worldpop.org/GIS/Population/Global_2000_2020_1km/2020/BFA/bfa_ppp_2020_1km_Aggregated.tif"
+  },
+  "retrieved_at_utc": "2026-07-30T14:38:44+00:00",
+  "schema_version": "1.0",
+  "source_locator": "https://data.worldpop.org/GIS/Population/Global_2000_2020_1km/2020/BFA/bfa_ppp_2020_1km_Aggregated.tif",
+  "transformation": {
+    "cog_validation": {
+      "errors": [],
+      "valid": true,
+      "warnings": []
+    },
+    "command": "python scripts/worldpop_pipeline.py prepare --source-url <official-url> --boundary data/canonical/boundaries/bfa-natural-earth-5.1.1.geojson --work-root .evidence --release-tag geo-002-worldpop-bfa-2020-v1",
+    "input_sha256": "1126f07b5f1b12872d4b20e58dcdf2cef27c1453c682ebdd3109804624c10a3b",
+    "name": "GeoTIFF to lossless Cloud Optimized GeoTIFF",
+    "output_sha256": "b8aa164c8e56190ebb6875458fdbf86ad044b266b75aaebe014739b5834bd3b1",
+    "parameters": {
+      "block_size": 512,
+      "compression": "DEFLATE",
+      "crs_preserved": true,
+      "driver": "COG",
+      "nodata_preserved": true,
+      "overview_resampling": "average",
+      "predictor": 3,
+      "predictor_definition": "TIFF floating-point predictor",
+      "resolution_preserved": true
+    },
+    "software_versions": {
+      "gdal": "3.9.3",
+      "numpy": "2.2.6",
+      "pillow": "11.3.0",
+      "python": "3.11.15",
+      "rasterio": "1.4.3",
+      "rio-cogeo": "5.4.2",
+      "shapely": "2.1.1"
+    }
+  },
+  "validation": {
+    "burkina_faso_coverage_passed": true,
+    "computed_population_total": 22811078.2325013,
+    "crs_present_and_usable": true,
+    "external_reference_comparison": null,
+    "finite_values": true,
+    "nodata_excluded_from_statistics": true,
+    "non_negative_values": true,
+    "publication_decision": "eligible_for_registry_publication",
+    "units_confirmed": "persons per pixel"
+  }
+}

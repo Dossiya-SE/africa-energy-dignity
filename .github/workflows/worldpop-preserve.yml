@@ -1,0 +1,89 @@
+name: Verify preserved WorldPop evidence
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: geo-002-worldpop-verify
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_URL: https://data.worldpop.org/GIS/Population/Global_2000_2020_1km/2020/BFA/bfa_ppp_2020_1km_Aggregated.tif
+      RELEASE_TAG: geo-002-worldpop-bfa-2020-v1
+      RAW_NAME: bfa_ppp_2020_1km_Aggregated.tif
+      COG_NAME: bfa_ppp_2020_1km_Aggregated.cog.tif
+      PREVIEW_NAME: bfa_ppp_2020_1km_Aggregated.preview.png
+      MANIFEST_NAME: bfa_ppp_2020_1km_Aggregated.manifest.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned geospatial tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install \
+            numpy==2.2.6 \
+            Pillow==11.3.0 \
+            rasterio==1.4.3 \
+            rio-cogeo==5.4.2 \
+            shapely==2.1.1
+
+      - name: Reproduce WorldPop evidence from the official file
+        run: |
+          python scripts/worldpop_pipeline.py prepare \
+            --source-url "$SOURCE_URL" \
+            --boundary data/canonical/boundaries/bfa-natural-earth-5.1.1.geojson \
+            --work-root .evidence/reproduced \
+            --release-tag "$RELEASE_TAG"
+
+      - name: Verify immutable release assets and manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p .evidence/release
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "$RAW_NAME" \
+            --pattern "$COG_NAME" \
+            --pattern "$PREVIEW_NAME" \
+            --pattern "$MANIFEST_NAME" \
+            --dir .evidence/release
+
+          for required in "$RAW_NAME" "$COG_NAME" "$PREVIEW_NAME" "$MANIFEST_NAME"; do
+            test -s ".evidence/release/$required" || {
+              echo "Preserved release is incomplete: $required" >&2
+              exit 1
+            }
+          done
+
+          RELEASE_MANIFEST=".evidence/release/$MANIFEST_NAME"
+          echo "$(jq -r '.original.sha256' "$RELEASE_MANIFEST")  .evidence/release/$RAW_NAME" | sha256sum --check -
+          echo "$(jq -r '.canonical.sha256' "$RELEASE_MANIFEST")  .evidence/release/$COG_NAME" | sha256sum --check -
+          echo "$(jq -r '.preview.sha256' "$RELEASE_MANIFEST")  .evidence/release/$PREVIEW_NAME" | sha256sum --check -
+
+          python scripts/worldpop_pipeline.py compare \
+            --expected "$RELEASE_MANIFEST" \
+            --actual ".evidence/reproduced/$MANIFEST_NAME"
+          cmp "$RELEASE_MANIFEST" "data/manifests/$MANIFEST_NAME"
+
+      - name: Retain reproduction bundle for audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: geo-002-worldpop-reproduction
+          path: |
+            .evidence/reproduced/raw/${{ env.RAW_NAME }}
+            .evidence/reproduced/canonical/${{ env.COG_NAME }}
+            .evidence/reproduced/preview/${{ env.PREVIEW_NAME }}
+            .evidence/reproduced/${{ env.MANIFEST_NAME }}
+          retention-days: 90
+          if-no-files-found: error

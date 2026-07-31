@@ -24,9 +24,7 @@ class Base(DeclarativeBase):
 
 
 class TimestampMixin:
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, onupdate=utcnow
     )
@@ -65,9 +63,7 @@ class Source(Base, TimestampMixin):
     archive_reference: Mapped[str | None] = mapped_column(String(500))
     access_date: Mapped[date] = mapped_column("access_date_value", Date)
     temporal_coverage: Mapped[dict] = mapped_column("temporal_coverage_json", JSON)
-    geographic_coverage: Mapped[list] = mapped_column(
-        "geographic_coverage_json", JSON
-    )
+    geographic_coverage: Mapped[list] = mapped_column("geographic_coverage_json", JSON)
     licence: Mapped[str] = mapped_column(String(255))
     attribution_requirements: Mapped[str] = mapped_column(Text)
     access_method: Mapped[str] = mapped_column(String(255))
@@ -87,6 +83,26 @@ class Dataset(Base, TimestampMixin):
     version: Mapped[str | None] = mapped_column(String(128))
     variable_definition: Mapped[str | None] = mapped_column(Text)
     unit: Mapped[str | None] = mapped_column(String(128))
+    original_uri: Mapped[str | None] = mapped_column(String(1000))
+    checksum: Mapped[str | None] = mapped_column(String(128))
+    media_type: Mapped[str | None] = mapped_column(String(128))
+    metadata_json: Mapped[dict | None] = mapped_column(JSON)
+    validation_status: Mapped[str] = mapped_column(String(32), default="proposed")
+
+
+class ProcessingRun(Base):
+    __tablename__ = "processing_runs"
+    id: Mapped[str] = mapped_column(
+        String(64), primary_key=True, default=lambda: str(uuid4())
+    )
+    process_name: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(32))
+    code_commit: Mapped[str | None] = mapped_column(String(64))
+    input_checksum: Mapped[str | None] = mapped_column(String(128))
+    output_checksum: Mapped[str | None] = mapped_column(String(128))
+    parameters_json: Mapped[dict | None] = mapped_column(JSON)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class GeospatialAsset(Base, TimestampMixin):
@@ -102,6 +118,13 @@ class GeospatialAsset(Base, TimestampMixin):
     licence: Mapped[str | None] = mapped_column(String(255))
     validation_status: Mapped[str] = mapped_column(String(32), default="proposed")
     is_sensitive: Mapped[bool] = mapped_column(Boolean, default=False)
+    checksum: Mapped[str | None] = mapped_column(String(128))
+    crs: Mapped[str | None] = mapped_column(String(128))
+    bbox: Mapped[list | None] = mapped_column("bbox_json", JSON)
+    nodata: Mapped[dict | None] = mapped_column("nodata_json", JSON)
+    publication_status: Mapped[str] = mapped_column(String(32), default="blocked")
+    metadata_json: Mapped[dict | None] = mapped_column(JSON)
+    processing_run_id: Mapped[str | None] = mapped_column(ForeignKey("processing_runs.id"))
 
 
 class Project(Base, TimestampMixin):
@@ -114,20 +137,6 @@ class Project(Base, TimestampMixin):
     is_synthetic: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
-class ProcessingRun(Base):
-    __tablename__ = "processing_runs"
-    id: Mapped[str] = mapped_column(
-        String(64), primary_key=True, default=lambda: str(uuid4())
-    )
-    process_name: Mapped[str] = mapped_column(String(255))
-    status: Mapped[str] = mapped_column(String(32))
-    code_commit: Mapped[str | None] = mapped_column(String(64))
-    started_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow
-    )
-    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-
-
 class ValidationEvent(Base):
     __tablename__ = "validation_events"
     id: Mapped[str] = mapped_column(
@@ -137,9 +146,8 @@ class ValidationEvent(Base):
     entity_id: Mapped[str] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(32))
     message: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow
-    )
+    checks_json: Mapped[dict | None] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 class AuditEvent(Base):
@@ -154,6 +162,4 @@ class AuditEvent(Base):
     entity_id: Mapped[str] = mapped_column(String(64))
     event_hash: Mapped[str] = mapped_column(String(64))
     payload: Mapped[str] = mapped_column(Text, default="{}")
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
