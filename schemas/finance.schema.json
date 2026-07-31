@@ -1,0 +1,406 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.africa-energy-dignity.org/0.1/finance.schema.json",
+  "title": "AED Canonical Finance Scenario",
+  "description": "Versioned project-finance, lifecycle-cost and affordability inputs with explicit monetary basis, evidence lineage and deterministic calculation controls.",
+  "type": "object",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_class": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "published",
+        "derived",
+        "assumed",
+        "scenario",
+        "expert_judgment",
+        "unverified"
+      ]
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "schema_valid",
+        "source_verified",
+        "cross_checked",
+        "model_ready",
+        "validated",
+        "rejected",
+        "deprecated"
+      ]
+    },
+    "money": {
+      "type": "object",
+      "required": ["amount", "currency", "price_year", "basis"],
+      "properties": {
+        "amount": {"type": "number"},
+        "currency": {"$ref": "#/$defs/currency"},
+        "price_year": {"type": "integer", "minimum": 1900, "maximum": 2200},
+        "basis": {"type": "string", "enum": ["real", "nominal"]}
+      },
+      "additionalProperties": false
+    },
+    "evidence_reference": {
+      "type": "object",
+      "required": [
+        "evidence_class",
+        "validation_status",
+        "responsible_contributor",
+        "limitations"
+      ],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "evidence_class": {"$ref": "#/$defs/evidence_class"},
+        "validation_status": {"$ref": "#/$defs/validation_status"},
+        "responsible_contributor": {"$ref": "#/$defs/non_empty_string"},
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/non_empty_string"}
+        },
+        "uncertainty": {
+          "type": "object",
+          "required": ["type", "lower", "upper"],
+          "properties": {
+            "type": {"type": "string", "enum": ["range", "confidence_interval", "scenario"]},
+            "lower": {"type": "number"},
+            "upper": {"type": "number"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {"evidence_class": {"enum": ["observed", "published"]}},
+            "required": ["evidence_class"]
+          },
+          "then": {"required": ["source_id"]}
+        }
+      ]
+    },
+    "cost_item": {
+      "type": "object",
+      "required": [
+        "cost_id",
+        "category",
+        "timing_year",
+        "value",
+        "evidence"
+      ],
+      "properties": {
+        "cost_id": {"$ref": "#/$defs/identifier"},
+        "category": {
+          "type": "string",
+          "enum": [
+            "capex",
+            "fixed_opex",
+            "variable_opex",
+            "fuel",
+            "replacement",
+            "tax",
+            "duty",
+            "decommissioning",
+            "salvage_value"
+          ]
+        },
+        "timing_year": {"type": "integer", "minimum": 0},
+        "value": {"$ref": "#/$defs/money"},
+        "quantity_driver": {"type": "number", "minimum": 0},
+        "quantity_unit": {"$ref": "#/$defs/non_empty_string"},
+        "evidence": {"$ref": "#/$defs/evidence_reference"}
+      },
+      "additionalProperties": false
+    },
+    "energy_year": {
+      "type": "object",
+      "required": ["year", "energy", "unit", "evidence"],
+      "properties": {
+        "year": {"type": "integer", "minimum": 1},
+        "energy": {"type": "number", "minimum": 0},
+        "unit": {"type": "string", "enum": ["kWh", "MWh", "GWh"]},
+        "evidence": {"$ref": "#/$defs/evidence_reference"}
+      },
+      "additionalProperties": false
+    },
+    "financing_component": {
+      "type": "object",
+      "required": ["component_id", "type", "amount", "evidence"],
+      "properties": {
+        "component_id": {"$ref": "#/$defs/identifier"},
+        "type": {"type": "string", "enum": ["debt", "equity", "grant", "subsidy"]},
+        "amount": {"$ref": "#/$defs/money"},
+        "interest_rate": {"$ref": "#/$defs/rate"},
+        "tenor_years": {"type": "integer", "minimum": 1},
+        "grace_period_years": {"type": "integer", "minimum": 0},
+        "repayment_profile": {
+          "type": "string",
+          "enum": ["level_principal", "annuity", "bullet", "custom"]
+        },
+        "evidence": {"$ref": "#/$defs/evidence_reference"}
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {"type": {"const": "debt"}},
+            "required": ["type"]
+          },
+          "then": {
+            "required": ["interest_rate", "tenor_years", "grace_period_years", "repayment_profile"]
+          }
+        }
+      ]
+    },
+    "customer_class": {
+      "type": "object",
+      "required": [
+        "customer_class_id",
+        "name",
+        "customer_count",
+        "annual_consumption_per_customer",
+        "energy_unit",
+        "tariff_per_energy",
+        "monthly_disposable_income",
+        "connection_charge",
+        "evidence"
+      ],
+      "properties": {
+        "customer_class_id": {"$ref": "#/$defs/identifier"},
+        "name": {"$ref": "#/$defs/non_empty_string"},
+        "customer_count": {"type": "integer", "minimum": 0},
+        "annual_consumption_per_customer": {"type": "number", "minimum": 0},
+        "energy_unit": {"type": "string", "enum": ["kWh", "MWh"]},
+        "tariff_per_energy": {"$ref": "#/$defs/money"},
+        "monthly_fixed_charge": {"$ref": "#/$defs/money"},
+        "monthly_disposable_income": {"$ref": "#/$defs/money"},
+        "connection_charge": {"$ref": "#/$defs/money"},
+        "evidence": {"$ref": "#/$defs/evidence_reference"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "scenario_id",
+    "name",
+    "scenario_version",
+    "formula_version",
+    "geography_id",
+    "is_synthetic",
+    "reporting_currency",
+    "price_year",
+    "monetary_basis",
+    "discount_rate",
+    "discount_rate_basis",
+    "project_start_year",
+    "project_lifetime_years",
+    "cost_items",
+    "annual_energy",
+    "financing_components",
+    "customer_classes",
+    "validation_status",
+    "responsible_contributor",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "scenario_id": {"$ref": "#/$defs/identifier"},
+    "name": {"$ref": "#/$defs/non_empty_string"},
+    "scenario_version": {"$ref": "#/$defs/non_empty_string"},
+    "formula_version": {"$ref": "#/$defs/non_empty_string"},
+    "geography_id": {"$ref": "#/$defs/identifier"},
+    "project_id": {"$ref": "#/$defs/identifier"},
+    "is_synthetic": {"type": "boolean"},
+    "reporting_currency": {"$ref": "#/$defs/currency"},
+    "price_year": {"type": "integer", "minimum": 1900, "maximum": 2200},
+    "monetary_basis": {"type": "string", "enum": ["real", "nominal"]},
+    "discount_rate": {"$ref": "#/$defs/rate"},
+    "discount_rate_basis": {"type": "string", "enum": ["real", "nominal"]},
+    "inflation_rate": {"$ref": "#/$defs/rate"},
+    "project_start_year": {"type": "integer", "minimum": 1900, "maximum": 2200},
+    "project_lifetime_years": {"type": "integer", "minimum": 1},
+    "construction_years": {"type": "integer", "minimum": 0},
+    "cost_items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/cost_item"}
+    },
+    "annual_energy": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/energy_year"}
+    },
+    "financing_components": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/financing_component"}
+    },
+    "customer_classes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/customer_class"}
+    },
+    "validation_status": {"$ref": "#/$defs/validation_status"},
+    "responsible_contributor": {"$ref": "#/$defs/non_empty_string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {"is_synthetic": {"const": false}},
+        "required": ["is_synthetic"]
+      },
+      "then": {"required": ["project_id"]}
+    },
+    {
+      "if": {
+        "properties": {"monetary_basis": {"const": "nominal"}},
+        "required": ["monetary_basis"]
+      },
+      "then": {
+        "properties": {"discount_rate_basis": {"const": "nominal"}},
+        "required": ["inflation_rate"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"monetary_basis": {"const": "real"}},
+        "required": ["monetary_basis"]
+      },
+      "then": {"properties": {"discount_rate_basis": {"const": "real"}}}
+    }
+  ],
+  "examples": [
+    {
+      "scenario_id": "finance.scenario.synthetic.bfa-mini-grid.v1",
+      "name": "Synthetic Burkina Faso mini-grid finance fixture",
+      "scenario_version": "1.0.0",
+      "formula_version": "FIN-001.1",
+      "geography_id": "geo.bfa",
+      "is_synthetic": true,
+      "reporting_currency": "XOF",
+      "price_year": 2026,
+      "monetary_basis": "real",
+      "discount_rate": 0.08,
+      "discount_rate_basis": "real",
+      "project_start_year": 2026,
+      "project_lifetime_years": 3,
+      "construction_years": 0,
+      "cost_items": [
+        {
+          "cost_id": "cost.synthetic.capex",
+          "category": "capex",
+          "timing_year": 0,
+          "value": {
+            "amount": 100000000,
+            "currency": "XOF",
+            "price_year": 2026,
+            "basis": "real"
+          },
+          "evidence": {
+            "evidence_class": "scenario",
+            "validation_status": "schema_valid",
+            "responsible_contributor": "Synthetic AED reviewer",
+            "limitations": ["Synthetic amount used only for deterministic verification."]
+          }
+        },
+        {
+          "cost_id": "cost.synthetic.opex.year1",
+          "category": "fixed_opex",
+          "timing_year": 1,
+          "value": {
+            "amount": 5000000,
+            "currency": "XOF",
+            "price_year": 2026,
+            "basis": "real"
+          },
+          "evidence": {
+            "evidence_class": "scenario",
+            "validation_status": "schema_valid",
+            "responsible_contributor": "Synthetic AED reviewer",
+            "limitations": ["Synthetic amount used only for deterministic verification."]
+          }
+        }
+      ],
+      "annual_energy": [
+        {
+          "year": 1,
+          "energy": 200,
+          "unit": "MWh",
+          "evidence": {
+            "evidence_class": "scenario",
+            "validation_status": "schema_valid",
+            "responsible_contributor": "Synthetic AED reviewer",
+            "limitations": ["Synthetic energy output used only for deterministic verification."]
+          }
+        },
+        {
+          "year": 2,
+          "energy": 200,
+          "unit": "MWh",
+          "evidence": {
+            "evidence_class": "scenario",
+            "validation_status": "schema_valid",
+            "responsible_contributor": "Synthetic AED reviewer",
+            "limitations": ["Synthetic energy output used only for deterministic verification."]
+          }
+        },
+        {
+          "year": 3,
+          "energy": 200,
+          "unit": "MWh",
+          "evidence": {
+            "evidence_class": "scenario",
+            "validation_status": "schema_valid",
+            "responsible_contributor": "Synthetic AED reviewer",
+            "limitations": ["Synthetic energy output used only for deterministic verification."]
+          }
+        }
+      ],
+      "financing_components": [
+        {
+          "component_id": "finance.synthetic.equity",
+          "type": "equity",
+          "amount": {
+            "amount": 100000000,
+            "currency": "XOF",
+            "price_year": 2026,
+            "basis": "real"
+          },
+          "evidence": {
+            "evidence_class": "scenario",
+            "validation_status": "schema_valid",
+            "responsible_contributor": "Synthetic AED reviewer",
+            "limitations": ["Synthetic financing structure used only for deterministic verification."]
+          }
+        }
+      ],
+      "customer_classes": [],
+      "validation_status": "schema_valid",
+      "responsible_contributor": "Synthetic AED reviewer",
+      "created_at": "2026-07-31T00:00:00Z",
+      "updated_at": "2026-07-31T00:00:00Z"
+    }
+  ]
+}
