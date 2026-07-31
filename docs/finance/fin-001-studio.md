@@ -14,7 +14,8 @@ Validated CI records:
 - run `30638521129` passed at commit `886dfc2ccc2d4380ef04d11e49591f0547da8dc7`;
 - run `30638627954` passed at commit `7afcb64c8e19064e5529b2eab3f65c41400e7595`;
 - run `30638736125` passed at commit `b94111e1185610cb884868e22974e1fcb115cb38`;
-- run `30638847191` passed at commit `8aa5fdf1dd1f5a595388b8a956128beb61602c98`.
+- run `30638847191` passed at commit `8aa5fdf1dd1f5a595388b8a956128beb61602c98`;
+- run `30638970274` passed at commit `316da32db7dc4607e167e009a74e8df5bd4c984a`.
 
 The final exact-head gate confirmed:
 
