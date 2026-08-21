@@ -1,10 +1,11 @@
-"""Africa Energy Dignity registry API."""
+"""Africa Energy Dignity registry and transparent finance API."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from aed.api.routes import (
     assets,
     audit,
+    finance,
     geographies,
     health,
     institutions,
@@ -15,10 +16,10 @@ from aed.api.routes import (
 
 app = FastAPI(
     title="Africa Energy Dignity Registry API",
-    version="0.3.0",
+    version="0.4.0",
     description=(
-        "Canonical evidence, institutional, geographic, geospatial-asset and project registry "
-        "for Africa Energy Dignity."
+        "Canonical evidence, institutional, geographic, geospatial-asset, project "
+        "and transparent project-finance services for Africa Energy Dignity."
     ),
 )
 app.add_middleware(
@@ -37,5 +38,6 @@ for router in (
     projects.router,
     audit.router,
     map_assets.router,
+    finance.router,
 ):
     app.include_router(router)

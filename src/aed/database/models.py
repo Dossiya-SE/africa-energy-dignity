@@ -5,12 +5,15 @@ from uuid import uuid4
 from sqlalchemy import (
     JSON,
     Boolean,
+    CheckConstraint,
     Date,
     DateTime,
     ForeignKey,
+    Integer,
     String,
     Text,
     UniqueConstraint,
+    event,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -163,3 +166,135 @@ class AuditEvent(Base):
     event_hash: Mapped[str] = mapped_column(String(64))
     payload: Mapped[str] = mapped_column(Text, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class FinanceScenarioRecord(Base):
+    """Immutable canonical finance scenario version."""
+
+    __tablename__ = "finance_scenarios"
+    __table_args__ = (
+        UniqueConstraint(
+            "scenario_id",
+            "scenario_version",
+            name="uq_finance_scenario_version",
+        ),
+        UniqueConstraint("input_hash", name="uq_finance_scenario_input_hash"),
+        CheckConstraint(
+            "monetary_basis IN ('real', 'nominal')",
+            name="ck_finance_scenario_monetary_basis",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    scenario_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    scenario_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    formula_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    canonicalization_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    input_hash: Mapped[str] = mapped_column(String(80), nullable=False)
+    geography_id: Mapped[str] = mapped_column(ForeignKey("geographies.id"))
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"))
+    is_synthetic: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    reporting_currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    price_year: Mapped[int] = mapped_column(Integer, nullable=False)
+    monetary_basis: Mapped[str] = mapped_column(String(16), nullable=False)
+    validation_status: Mapped[str] = mapped_column(String(32), nullable=False)
+    payload_json: Mapped[dict] = mapped_column(JSON, nullable=False)
+    canonical_payload: Mapped[str] = mapped_column(Text, nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, nullable=False
+    )
+
+
+class FinanceCalculationExecution(Base):
+    """Immutable audit event for one execution of a deterministic run identity."""
+
+    __tablename__ = "finance_calculation_executions"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('succeeded', 'failed')",
+            name="ck_finance_execution_status",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    scenario_record_id: Mapped[str] = mapped_column(
+        ForeignKey("finance_scenarios.id"), nullable=False
+    )
+    calculation_run_id: Mapped[str] = mapped_column(
+        String(128), nullable=False, index=True
+    )
+    formula_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    input_hash: Mapped[str] = mapped_column(String(80), nullable=False)
+    canonicalization_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    software_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class FinanceIndicatorResultRecord(Base):
+    """Immutable typed result payload produced by one execution event."""
+
+    __tablename__ = "finance_indicator_results"
+    __table_args__ = (
+        UniqueConstraint(
+            "execution_id",
+            "indicator_name",
+            name="uq_finance_execution_indicator",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    execution_id: Mapped[str] = mapped_column(
+        ForeignKey("finance_calculation_executions.id"), nullable=False, index=True
+    )
+    indicator_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    status: Mapped[str] = mapped_column(String(64), nullable=False)
+    value_json: Mapped[dict | None] = mapped_column(JSON)
+    result_json: Mapped[dict] = mapped_column(JSON, nullable=False)
+    lineage_json: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, nullable=False
+    )
+
+
+class FinanceValidationEventRecord(Base):
+    """Immutable finance-specific validation evidence."""
+
+    __tablename__ = "finance_validation_events"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('passed', 'warning', 'failed')",
+            name="ck_finance_validation_status",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    scenario_record_id: Mapped[str] = mapped_column(
+        ForeignKey("finance_scenarios.id"), nullable=False, index=True
+    )
+    execution_id: Mapped[str | None] = mapped_column(
+        ForeignKey("finance_calculation_executions.id"), index=True
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    checks_json: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, nullable=False
+    )
+
+
+def _reject_finance_mutation(_mapper, _connection, target) -> None:
+    """Reject ORM updates and deletes for append-only finance records."""
+    raise ValueError(f"{type(target).__name__} is immutable and append-only.")
+
+
+for _immutable_model in (
+    FinanceScenarioRecord,
+    FinanceCalculationExecution,
+    FinanceIndicatorResultRecord,
+    FinanceValidationEventRecord,
+):
+    event.listen(_immutable_model, "before_update", _reject_finance_mutation)
+    event.listen(_immutable_model, "before_delete", _reject_finance_mutation)
