@@ -254,7 +254,7 @@
 
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible {
-  outline: 3px solid rgba(199, 154, 45, 0.45);
+  outline: 3px solid rgba(124, 58, 237, 0.45);
   outline-offset: 2px;
 }
 
