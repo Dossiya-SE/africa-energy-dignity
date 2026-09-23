@@ -195,7 +195,7 @@
 }
 
 .syntheticWarning {
-  border-left: 5px solid var(--accent-violet);
+  border-left: 5px solid var(--accent-sky);
   background: var(--warning-bg);
 }
 
@@ -254,7 +254,7 @@
 
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible {
-  outline: 3px solid rgba(124, 58, 237, 0.45);
+  outline: 3px solid rgba(56, 189, 248, 0.45);
   outline-offset: 2px;
 }
 
