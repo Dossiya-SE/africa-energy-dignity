@@ -66,7 +66,7 @@
   padding: 0.25rem 0.55rem;
   border-radius: 999px;
   color: var(--green-deep);
-  background: #eaf3ef;
+  background: #FFFFFF;
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -93,7 +93,7 @@
 .scenarioButton:focus-visible,
 .selected {
   border-color: #8ab8a8;
-  background: #eaf3ef;
+  background: #FFFFFF;
   outline: none;
 }
 
