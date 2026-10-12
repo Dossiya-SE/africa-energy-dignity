@@ -4,7 +4,7 @@
   --muted: #5c6c66;
   --line: #dce4df;
   --surface: #ffffff;
-  --surface-soft: #f4f7f5;
+  --surface-soft: #ffffff;
   --green: #0b6b4f;
   --green-deep: #064c39;
   --accent-sky: #0284c7;
@@ -14,7 +14,7 @@
   --positive-bg: #e7f6ef;
   --negative: #9f2f2f;
   --negative-bg: #fdecec;
-  --shadow: 0 18px 44px rgba(16, 35, 29, 0.08);
+  --shadow: none;
 }
 
 * {
@@ -29,9 +29,7 @@ html {
 body {
   margin: 0;
   color: var(--ink);
-  background:
-    radial-gradient(circle at 80% 0%, rgba(56, 189, 248, 0.12), transparent 28rem),
-    var(--surface-soft);
+  background: #ffffff;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.55;
@@ -74,7 +72,7 @@ a {
   place-items: center;
   border-radius: 0.8rem;
   color: #fff;
-  background: linear-gradient(145deg, var(--green), var(--green-deep));
+  background: var(--green);
   font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -116,7 +114,7 @@ a {
 .nav-list a:hover,
 .nav-list a:focus-visible {
   color: var(--green-deep);
-  background: #eaf3ef;
+  background: #ffffff;
   outline: none;
 }
 
@@ -148,9 +146,7 @@ a {
 
 .hero-copy {
   padding: clamp(2rem, 5vw, 4.5rem);
-  background:
-    linear-gradient(140deg, rgba(11, 107, 79, 0.98), rgba(6, 76, 57, 0.98)),
-    var(--green);
+  background: #ffffff;
   color: #fff;
 }
 
@@ -176,7 +172,7 @@ a {
 .hero-copy > p:not(.eyebrow) {
   max-width: 64ch;
   margin: 1.5rem 0 0;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--muted);
   font-size: 1.05rem;
 }
 
@@ -337,19 +333,19 @@ a {
 .status-warning {
   color: var(--warning);
   border-color: #ddd6fe;
-  background: var(--warning-bg);
+  background: #ffffff;
 }
 
 .status-positive {
   color: var(--positive);
   border-color: #bfe3d3;
-  background: var(--positive-bg);
+  background: #ffffff;
 }
 
 .status-negative {
   color: var(--negative);
   border-color: #f2c5c5;
-  background: var(--negative-bg);
+  background: #ffffff;
 }
 
 .text-link {
@@ -374,12 +370,12 @@ a {
 
 .notice-warning {
   border-left: 5px solid var(--accent-sky);
-  background: var(--warning-bg);
+  background: #ffffff;
 }
 
 .notice-error {
   border-left: 5px solid var(--negative);
-  background: var(--negative-bg);
+  background: #ffffff;
 }
 
 .detail-layout {
@@ -435,7 +431,7 @@ a {
   border: 1px dashed #afbeb6;
   border-radius: 1rem;
   text-align: center;
-  background: rgba(255, 255, 255, 0.55);
+  background: #ffffff;
 }
 
 .empty-state h2 {
