@@ -66,7 +66,7 @@
   padding: 0.25rem 0.55rem;
   border-radius: 999px;
   color: var(--green-deep);
-  background: #eaf3ef;
+  background: #ffffff;
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -93,7 +93,7 @@
 .scenarioButton:focus-visible,
 .selected {
   border-color: #8ab8a8;
-  background: #eaf3ef;
+  background: #ffffff;
   outline: none;
 }
 
@@ -191,12 +191,12 @@
 .errorBanner,
 .failurePanel {
   border-left: 5px solid var(--negative);
-  background: var(--negative-bg);
+  background: #ffffff;
 }
 
 .syntheticWarning {
   border-left: 5px solid var(--accent-sky);
-  background: var(--warning-bg);
+  background: #ffffff;
 }
 
 .syntheticWarning p,
@@ -207,8 +207,8 @@
 .scenarioHeader {
   padding: clamp(1.35rem, 4vw, 2.2rem);
   border-radius: 1.1rem;
-  color: #fff;
-  background: linear-gradient(135deg, var(--green), var(--green-deep));
+  color: var(--ink);
+  background: #ffffff;
   box-shadow: var(--shadow);
 }
 
@@ -220,7 +220,7 @@
 
 .scenarioHeader p:not(:global(.eyebrow)) {
   margin: 0.85rem 0 0;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--muted);
 }
 
 .badges {
@@ -507,7 +507,7 @@
   padding: 1rem;
   border: 1px dashed #afbeb6;
   border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.55);
+  background: #ffffff;
 }
 
 @media (max-width: 1050px) {
